@@ -5,3 +5,6 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+
+# postgres
+alice-trading/postgres/**
