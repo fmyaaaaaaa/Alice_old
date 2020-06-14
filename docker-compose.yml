@@ -1,0 +1,39 @@
+version: '3'
+
+networks:
+  aliceNet:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:11.6-alpine
+    restart: always
+    hostname: postgres
+    environment:
+      TZ: "Asia/Tokyo"
+      POSTGRES_USER: alice
+      POSTGRES_PASSWORD: alice
+      POSTGRES_DB: alice_db
+    ports:
+      - 5432:5432
+    networks:
+      - aliceNet
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./alice-trading/docker/postgres/init:/docker-entrypoint-initdb.d
+
+  gotest:
+    image: golang:1.14-alpine3.12
+    environment:
+      - CGO_ENABLED=0
+    command: go test -v ./...
+    working_dir: /gotest
+    networks:
+      - aliceNet
+    links:
+      - postgres
+    volumes:
+      - ./alice-trading:/gotest
+
+volumes:
+  postgres:

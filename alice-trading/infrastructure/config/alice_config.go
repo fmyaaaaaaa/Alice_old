@@ -39,16 +39,54 @@ func NewConfig(path string, appMode string) (AliceConfig, error) {
 
 // AliceConfigの初期化を行います。
 // 初期化処理が成功した場合にtrue、初期化処理の失敗または既に初期化済の場合にfalseを返却します。
-func InitInstance(path string, appMode string) bool {
+func InitInstance(appMode string, confParams []string) bool {
 	res := false
 	once.Do(func() {
 		instance = &AliceConfig{}
-		confPath := path + appMode + ".toml"
-		if _, err := toml.DecodeFile(confPath, &instance); err == nil {
-			res = true
+		switch appMode {
+		case "local", "test":
+			res = initLocalOrTest(appMode, instance, confParams)
+			break
+		case "develop", "staging", "production":
+			res = initDevelopOrStagingOrProduction(instance, confParams)
+			break
+		default:
+			panic("something wrong happened : appMode")
 		}
 	})
 	return res
+}
+
+// Local/Testモードで起動した場合の初期化を行います。
+func initLocalOrTest(appMode string, instance *AliceConfig, confParams []string) bool {
+	confPath := confParams[1] + appMode + ".toml"
+	if _, err := toml.DecodeFile(confPath, &instance); err == nil {
+		return true
+	}
+	return false
+}
+
+// Develop/Staging/Productionモードで起動した場合の初期化を行います。
+func initDevelopOrStagingOrProduction(instance *AliceConfig, confParams []string) bool {
+	if len(confParams) != 9 {
+		return false
+	}
+	// API
+	url := confParams[1]
+	accountID := confParams[2]
+	accessToken := confParams[3]
+
+	// DB
+	host := confParams[4]
+	port := confParams[5]
+	userName := confParams[6]
+	password := confParams[7]
+	dbName := confParams[8]
+
+	conf := AliceConfig{Api: Api{Url: url, AccountId: accountID, AccessToken: accessToken},
+		DB: DB{Host: host, Port: port, UserName: userName, Password: password, DBName: dbName}}
+	*instance = conf
+	return true
 }
 
 func GetInstance() *AliceConfig {

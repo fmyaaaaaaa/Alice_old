@@ -38,5 +38,6 @@ func TestMain(m *testing.M) {
 
 // TODO:テストはDummyサーバに接続するように修正する
 func setup() {
-	config.InitInstance("./../../../config/env/", "stg")
+	dummyConf := []string{"", "./../../../infrastructure/config/env/"}
+	config.InitInstance("test", dummyConf)
 }

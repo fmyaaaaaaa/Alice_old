@@ -12,15 +12,16 @@ import (
 
 func main() {
 	flag.Parse()
-	config.InitInstance("./infrastructure/config/env/", flag.Arg(0))
-	fmt.Println("application started :", flag.Arg(0))
-
-	// TODO:DBアクセスの暫定実装のため、不要になり次第修正する
-	i := usecase.InstrumentsInteractor{
-		DB:          &database.DBRepository{DB: database2.NewDB()},
-		Instruments: &instruments.Repository{},
+	if config.InitInstance(flag.Arg(0), flag.Args()) {
+		fmt.Println("application started :", flag.Arg(0))
+		fmt.Println("param :", flag.Args())
+		// TODO:DBアクセスの暫定実装のため、不要になり次第修正する
+		i := usecase.InstrumentsInteractor{
+			DB:          &database.DBRepository{DB: database2.NewDB()},
+			Instruments: &instruments.Repository{},
+		}
+		fmt.Println(i.Get(1))
+	} else {
+		panic("failed application initialize")
 	}
-
-	res, _ := i.Get(1)
-	fmt.Println(res.Name)
 }

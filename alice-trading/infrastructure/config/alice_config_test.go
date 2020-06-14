@@ -52,16 +52,18 @@ func TestNewConfig(t *testing.T) {
 }
 
 func TestInitInstance(t *testing.T) {
+	dummyConf := []string{"", "./env/"}
 	// First time
-	res := InitInstance("./env/", "test")
+	res := InitInstance("test", dummyConf)
 	assert.Equal(t, true, res)
 	// Second time
-	res = InitInstance("./env/", "test")
+	res = InitInstance("test", dummyConf)
 	assert.Equal(t, false, res)
 }
 
 func TestGetInstance(t *testing.T) {
-	InitInstance("./env/", "test")
+	dummyConf := []string{"", "./env/"}
+	InitInstance("test", dummyConf)
 	res := GetInstance()
 	// API
 	assert.Equal(t, "https://api-fxtest.oanda.com", res.Api.Url)
@@ -74,3 +76,24 @@ func TestGetInstance(t *testing.T) {
 	assert.Equal(t, "test", res.DB.Password)
 	assert.Equal(t, "test_db", res.DB.DBName)
 }
+
+//func TestInitStagingInstance(t *testing.T) {
+//	ResetInstance()
+//	dummyConf := []string{
+//		"staging",
+//		"https://api-fxtest.oanda.com",
+//		"111-222-33333333-444",
+//		"token-test",
+//		"localhost",
+//		"5432",
+//		"test",
+//		"test",
+//		"test_db",
+//	}
+//	res := InitInstance("staging", dummyConf)
+//	assert.Equal(t, true, res)
+//
+//	instance = GetInstance()
+//	assert.Equal(t, "https://api-fxtest.oanda.com", instance.Api.Url)
+//	assert.Equal(t, "test_db", instance.DB.DBName)
+//}
