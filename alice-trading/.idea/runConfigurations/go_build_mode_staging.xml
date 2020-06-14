@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="go build mode-staging" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="alice-trading" />
+    <working_directory value="$PROJECT_DIR$/" />
+    <parameters value="staging https://api-fxtest.oanda.com 111-222-33333333-444 token-test localhost 5432 test test test_db" />
+    <kind value="PACKAGE" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/fmyaaaaaaa/Alice/alice-trading" />
+    <directory value="$PROJECT_DIR$/" />
+    <method v="2" />
+  </configuration>
+</component>
