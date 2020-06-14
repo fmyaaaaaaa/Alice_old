@@ -14,7 +14,6 @@ func main() {
 	flag.Parse()
 	if config.InitInstance(flag.Arg(0), flag.Args()) {
 		fmt.Println("application started :", flag.Arg(0))
-		fmt.Println("param :", flag.Args())
 		// TODO:DBアクセスの暫定実装のため、不要になり次第修正する
 		i := usecase.InstrumentsInteractor{
 			DB:          &database.DBRepository{DB: database2.NewDB()},
