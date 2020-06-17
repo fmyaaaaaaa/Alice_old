@@ -31,9 +31,13 @@ func (r RootApi) newRequest(ctx context.Context, method, strPath string, body io
 	return req, nil
 }
 
-//GoUnhandledErrorResult
 func (r RootApi) decodeBody(res *http.Response, out interface{}) error {
 	defer res.Body.Close()
+	decoder := json.NewDecoder(res.Body)
+	return decoder.Decode(out)
+}
+
+func (r RootApi) decodeBodyForStreaming(res *http.Response, out interface{}) error {
 	decoder := json.NewDecoder(res.Body)
 	return decoder.Decode(out)
 }

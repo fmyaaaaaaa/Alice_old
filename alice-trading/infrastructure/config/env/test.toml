@@ -4,8 +4,8 @@ account_id = "111-222-33333333-444"
 access_token = "token-test"
 
 [db]
-host = "localhost"
+host = "test-postgres"
 port = "5432"
-user_name = "test"
-password = "test"
+user_name = "alice"
+password = "alice"
 db_name = "test_db"

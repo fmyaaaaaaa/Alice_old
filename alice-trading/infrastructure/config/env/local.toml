@@ -4,8 +4,8 @@ account_id = "111-222-33333333-444"
 access_token = "token-local"
 
 [db]
-host = "127.0.0.1"
-port = "5432"
+host = "postgres"
+port = "5431"
 user_name = "alice"
 password = "alice"
 db_name = "alice_db"

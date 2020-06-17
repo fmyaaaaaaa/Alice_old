@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-// 通貨関連のAPIを提供します。
+// 銘柄関連のAPI
 type InstrumentsApi struct {
 	RootApi
 }
