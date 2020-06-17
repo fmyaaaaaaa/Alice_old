@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="PostgreSQL - alice_db@localhost" uuid="23d17fc8-24c8-40db-81b0-977fa311f96a">
+    <data-source source="LOCAL" name="alice_db@postgres" uuid="5c7ec2e8-39d4-4e33-9c32-350a23c90eb8">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/alice_db</jdbc-url>
+      <jdbc-url>jdbc:postgresql://postgres:5431/alice_db</jdbc-url>
     </data-source>
-    <data-source source="LOCAL" name="alice_db@127.0.0.1" uuid="5c7ec2e8-39d4-4e33-9c32-350a23c90eb8">
+    <data-source source="LOCAL" name="test_db@test-postgres" uuid="84b7ef8c-c1a0-4ba2-aa82-29dec2de2b33">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://127.0.0.1:5432/alice_db</jdbc-url>
+      <jdbc-url>jdbc:postgresql://test-postgres:5432/test_db</jdbc-url>
     </data-source>
   </component>
 </project>

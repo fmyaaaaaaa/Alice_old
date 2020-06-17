@@ -15,11 +15,28 @@ services:
       POSTGRES_PASSWORD: alice
       POSTGRES_DB: alice_db
     ports:
-      - 5432:5432
+      - 5431:5432
     networks:
       - aliceNet
     volumes:
       - postgres:/var/lib/postgresql/data
+      - ./alice-trading/docker/postgres/init:/docker-entrypoint-initdb.d
+
+  test-postgres:
+    image: postgres:11.6-alpine
+    restart: always
+    hostname: test-postgres
+    environment:
+      TZ: "Asia/Tokyo"
+      POSTGRES_USER: alice
+      POSTGRES_PASSWORD: alice
+      POSTGRES_DB: test_db
+    ports:
+      - 5432:5432
+    networks:
+      - aliceNet
+    volumes:
+      - test-postgres:/var/lib/postgresql/data
       - ./alice-trading/docker/postgres/init:/docker-entrypoint-initdb.d
 
   gotest:
@@ -30,10 +47,12 @@ services:
     working_dir: /gotest
     networks:
       - aliceNet
-    links:
+    depends_on:
       - postgres
+      - test-postgres
     volumes:
       - ./alice-trading:/gotest
 
 volumes:
   postgres:
+  test-postgres:

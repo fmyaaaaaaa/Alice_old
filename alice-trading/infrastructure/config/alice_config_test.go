@@ -21,10 +21,10 @@ func TestNewConfig(t *testing.T) {
 					AccessToken: "token-test",
 				},
 				DB: DB{
-					Host:     "localhost",
+					Host:     "test-postgres",
 					Port:     "5432",
-					UserName: "test",
-					Password: "test",
+					UserName: "alice",
+					Password: "alice",
 					DBName:   "test_db",
 				},
 			},
@@ -70,10 +70,10 @@ func TestGetInstance(t *testing.T) {
 	assert.Equal(t, "111-222-33333333-444", res.Api.AccountId)
 	assert.Equal(t, "token-test", res.Api.AccessToken)
 	// DB
-	assert.Equal(t, "localhost", res.DB.Host)
+	assert.Equal(t, "test-postgres", res.DB.Host)
 	assert.Equal(t, "5432", res.DB.Port)
-	assert.Equal(t, "test", res.DB.UserName)
-	assert.Equal(t, "test", res.DB.Password)
+	assert.Equal(t, "alice", res.DB.UserName)
+	assert.Equal(t, "alice", res.DB.Password)
 	assert.Equal(t, "test_db", res.DB.DBName)
 }
 
