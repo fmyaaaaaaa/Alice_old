@@ -1,4 +1,4 @@
-package candles
+package domain
 
 import "time"
 

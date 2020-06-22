@@ -1,0 +1,113 @@
+<mxfile host="" modified="2020-06-05T00:48:11.861Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.45.1 Chrome/78.0.3904.130 Electron/7.2.4 Safari/537.36" etag="hBSMsb85wIIYExU_HUGa" version="13.1.3">
+    <diagram id="6hGFLwfOUW9BJ-s0fimq" name="Page-1">
+        <mxGraphModel dx="699" dy="580" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="38" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="40" y="40" width="560" height="360" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="VPC" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc;strokeColor=#248814;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#AAB7B8;dashed=0;" vertex="1" parent="38">
+                    <mxGeometry width="560" height="360" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="http" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5A6C86;" vertex="1" parent="38">
+                    <mxGeometry x="362" y="56" width="40" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="http" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5A6C86;" vertex="1" parent="38">
+                    <mxGeometry x="160" y="56" width="40" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="Read/Write" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5A6C86;" vertex="1" parent="38">
+                    <mxGeometry x="140" y="170" width="40" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="http" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5A6C86;" vertex="1" parent="38">
+                    <mxGeometry x="24" y="190" width="40" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="Read" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#5A6C86;" vertex="1" parent="38">
+                    <mxGeometry x="261.5" y="170" width="40" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=block;startFill=1;endFill=1;strokeColor=#3399FF;rounded=0;" edge="1" parent="38">
+                    <mxGeometry width="100" relative="1" as="geometry">
+                        <mxPoint x="59" y="140" as="sourcePoint"/>
+                        <mxPoint x="59" y="260" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" value="" style="group" vertex="1" connectable="0" parent="38">
+                    <mxGeometry x="30" y="268.5" width="110" height="54.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="&lt;font color=&quot;#5a6c86&quot;&gt;&lt;b&gt;Alice-Backtest&lt;br&gt;&lt;/b&gt;&lt;/font&gt;" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;strokeWidth=1;align=center;outlineConnect=0;dashed=0;outlineConnect=0;shape=mxgraph.aws3d.application2;fillColor=#EA6B66;strokeColor=#F19C99;aspect=fixed;" vertex="1" parent="17">
+                    <mxGeometry y="1.5" width="62" height="53" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;img src=&quot;https://gammasoft.jp/pu7nk3cmg8/wp-content/uploads/2017/01/language-python.png&quot; alt=&quot;Pythonのインストール方法（Windows） | ガンマソフト株式会社&quot;&gt;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="17">
+                    <mxGeometry x="70" width="40" height="28.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="" style="group" vertex="1" connectable="0" parent="38">
+                    <mxGeometry x="227" y="242" width="135" height="78.93" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="&lt;font color=&quot;#5a6c86&quot;&gt;&lt;b&gt;Alice-DataBase&lt;/b&gt;&lt;/font&gt;" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;strokeWidth=1;align=center;outlineConnect=0;dashed=0;outlineConnect=0;shape=mxgraph.aws3d.rds;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;" vertex="1" parent="18">
+                    <mxGeometry width="73" height="78.93" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;img src=&quot;https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Postgresql_elephant.svg/1200px-Postgresql_elephant.svg.png&quot; alt=&quot;PostgreSQL - Wikipedia&quot;&gt;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="18">
+                    <mxGeometry x="85" y="12.220000000000027" width="50" height="38.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="" style="group" vertex="1" connectable="0" parent="38">
+                    <mxGeometry x="30" y="52" width="110" height="61" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="&lt;font color=&quot;#5a6c86&quot;&gt;&lt;b&gt;Alice-Trading&lt;br&gt;&lt;/b&gt;&lt;/font&gt;" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;strokeWidth=1;align=center;outlineConnect=0;dashed=0;outlineConnect=0;shape=mxgraph.aws3d.application2;fillColor=#86E83A;strokeColor=#B0F373;aspect=fixed;" vertex="1" parent="19">
+                    <mxGeometry y="8" width="62" height="53" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;img src=&quot;https://polidog.jp/images/golang.png&quot; alt=&quot;golangでファイルを読んだり書いたりするコード書いてみた · polidog lab++&quot;&gt;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="19">
+                    <mxGeometry x="60" width="50" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="" style="group" vertex="1" connectable="0" parent="38">
+                    <mxGeometry x="227" y="56" width="128" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="&lt;font color=&quot;#5a6c86&quot;&gt;&lt;b&gt;Alice-Backend&lt;br&gt;&lt;/b&gt;&lt;/font&gt;" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;strokeWidth=1;align=center;outlineConnect=0;dashed=0;outlineConnect=0;shape=mxgraph.aws3d.application2;fillColor=#7EA6E0;strokeColor=#A9C4EB;aspect=fixed;" vertex="1" parent="20">
+                    <mxGeometry y="4" width="62" height="53" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;img src=&quot;https://kokensha.xyz/wp-content/uploads/2018/03/nodejslogo.png&quot; alt=&quot;世界一簡単なRaspberryPiにnode.jsを入れる方法 - KOKENSHAの技術ブログ&quot;&gt;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="20">
+                    <mxGeometry x="48" width="80" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="" style="group" vertex="1" connectable="0" parent="38">
+                    <mxGeometry x="428" y="44" width="132" height="107" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="&lt;font color=&quot;#5a6c86&quot;&gt;&lt;b&gt;Alice-Frontend&lt;br&gt;&lt;/b&gt;&lt;/font&gt;" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;strokeWidth=1;align=center;outlineConnect=0;dashed=0;outlineConnect=0;shape=mxgraph.aws3d.application2;fillColor=#FFD966;strokeColor=#FFE599;aspect=fixed;" vertex="1" parent="21">
+                    <mxGeometry y="16" width="62" height="53" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;img src=&quot;https://kokensha.xyz/wp-content/uploads/2018/03/nodejslogo.png&quot; alt=&quot;世界一簡単なRaspberryPiにnode.jsを入れる方法 - KOKENSHAの技術ブログ&quot;&gt;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="21">
+                    <mxGeometry x="52" y="37" width="80" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;img src=&quot;https://upload.wikimedia.org/wikipedia/commons/f/f1/Vue.png&quot; alt=&quot;Vue.js - Wikipedia&quot;&gt;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="21">
+                    <mxGeometry x="72" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;elbow=vertical;startArrow=block;startFill=1;strokeColor=#3399FF;rounded=0;" edge="1" parent="38">
+                    <mxGeometry width="100" relative="1" as="geometry">
+                        <mxPoint x="139" y="80" as="sourcePoint"/>
+                        <mxPoint x="210" y="80" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="25" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=block;startFill=1;endFill=1;strokeColor=#3399FF;rounded=0;" edge="1" parent="38">
+                    <mxGeometry width="100" relative="1" as="geometry">
+                        <mxPoint x="346" y="80" as="sourcePoint"/>
+                        <mxPoint x="416" y="80" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="26" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=block;startFill=1;endFill=1;strokeColor=#FF9933;rounded=0;" edge="1" parent="38">
+                    <mxGeometry width="100" relative="1" as="geometry">
+                        <mxPoint x="70" y="140" as="sourcePoint"/>
+                        <mxPoint x="250" y="230" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="70" y="190"/>
+                            <mxPoint x="250" y="190"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="28" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#FF9933;rounded=0;" edge="1" parent="38">
+                    <mxGeometry width="100" relative="1" as="geometry">
+                        <mxPoint x="260" y="140" as="sourcePoint"/>
+                        <mxPoint x="260" y="230" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

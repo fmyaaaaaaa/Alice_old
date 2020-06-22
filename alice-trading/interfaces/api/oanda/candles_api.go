@@ -30,7 +30,7 @@ func (c CandlesApi) GetCandleMid(ctx context.Context, instrumentName string, cou
 	if err != nil {
 		panic(err)
 	}
-	createCandleParam(req, strconv.Itoa(count), enum.Mid.ConvertToParam(), granularity.ToString())
+	createCandleParam(req, strconv.Itoa(count), enum.M.ToString(), granularity.ToString())
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		panic(err)
@@ -51,7 +51,7 @@ func (c CandlesApi) GetCandleBidAsk(ctx context.Context, instrumentName string, 
 	if err != nil {
 		panic(err)
 	}
-	createCandleParam(req, strconv.Itoa(count), enum.BidAsk.ConvertToParam(), granularity.ToString())
+	createCandleParam(req, strconv.Itoa(count), enum.BA.ToString(), granularity.ToString())
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		panic(err)

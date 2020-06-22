@@ -26,7 +26,6 @@ const (
 	H12 = Granularity("H12")
 	D   = Granularity("D")
 	W   = Granularity("W")
-	M   = Granularity("M")
 )
 
 func (g Granularity) ToString() string {

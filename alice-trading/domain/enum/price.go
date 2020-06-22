@@ -1,19 +1,14 @@
 package enum
 
-type PriceType int
+import "fmt"
+
+type Price string
 
 const (
-	Mid PriceType = iota
-	BidAsk
+	M  = Price("M")
+	BA = Price("BA")
 )
 
-func (p PriceType) ConvertToParam() string {
-	switch p {
-	case Mid:
-		return "M"
-	case BidAsk:
-		return "BA"
-	default:
-		return ""
-	}
+func (p Price) ToString() string {
+	return fmt.Sprint(p)
 }

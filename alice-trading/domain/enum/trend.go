@@ -6,9 +6,9 @@ import "fmt"
 type Trend string
 
 const (
-	UPTREND   = Trend("UPTREND")
-	DOWNTREND = Trend("DOWNTREND")
-	RANGE     = Trend("RANGE")
+	UpTrend   = Trend("UPTREND")
+	DownTrend = Trend("DOWNTREND")
+	Range     = Trend("RANGE")
 )
 
 func (t Trend) ToString() string {

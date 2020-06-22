@@ -1,4 +1,4 @@
-package instruments
+package domain
 
 type Instruments struct {
 	ID                         int
