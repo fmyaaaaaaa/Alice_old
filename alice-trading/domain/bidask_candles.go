@@ -1,10 +1,10 @@
-package candles
+package domain
 
 import "github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 
 // 足データ（Bid/Ask）
 type BidAskCandles struct {
-	Id             int
+	ID             int
 	InstrumentName string
 	Granularity    enum.Granularity
 	Bid            BidRate `gorm:"embedded"`

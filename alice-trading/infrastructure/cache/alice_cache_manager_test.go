@@ -29,18 +29,18 @@ func TestGetCacheManager(t *testing.T) {
 func TestAliceCacheManager_Set(t *testing.T) {
 	model1 := TestModel{Name: "Sample1"}
 	cacheManager := GetCacheManager()
-	cacheManager.Set("test", model1, enum.DEFAULT)
+	cacheManager.Set("test", model1, enum.DefaultExpiration)
 	data := cacheManager.Get("test")
 	assert.Equal(t, model1, data)
 
 	model2 := TestModel{Name: "Sample2"}
-	cacheManager.Set("test", model2, enum.DEFAULT)
+	cacheManager.Set("test", model2, enum.DefaultExpiration)
 	data = cacheManager.Get("test")
 	assert.NotEqual(t, model1, data)
 	assert.Equal(t, model2, data)
 
 	model3 := []TestModel{{Name: "Sample3"}, {Name: "Sample4"}}
-	cacheManager.Set("array", model3, enum.DEFAULT)
+	cacheManager.Set("array", model3, enum.DefaultExpiration)
 	data = cacheManager.Get("array")
 	targetArray := data.([]TestModel)
 	assert.Equal(t, 2, len(targetArray))

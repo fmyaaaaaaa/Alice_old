@@ -6,8 +6,8 @@ import "fmt"
 type Line string
 
 const (
-	POSITIVE = Line("POSITIVE")
-	NEGATIVE = Line("NEGATIVE")
+	Positive = Line("POSITIVE")
+	Negative = Line("NEGATIVE")
 )
 
 func (l Line) ToString() string {

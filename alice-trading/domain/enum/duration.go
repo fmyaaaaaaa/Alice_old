@@ -4,6 +4,6 @@ package enum
 type Duration int
 
 const (
-	DEFAULT Duration = iota
-	NONE
+	DefaultExpiration Duration = iota
+	NoExpiration
 )

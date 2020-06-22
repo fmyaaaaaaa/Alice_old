@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
-	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/instruments"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/cache"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
 	database2 "github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/database"
@@ -16,9 +16,10 @@ import (
 )
 
 var cacheManager cache.AliceCacheManager
-var DB *database2.DB
+var DBRepository database.DBRepository
 var instrumentsInteractor usecase.InstrumentsInteractor
 var candlesInteractor usecase.CandlesInteractor
+var orderManager usecase.OrderManager
 
 func init() {
 	// configの初期化
@@ -28,15 +29,22 @@ func init() {
 	}
 
 	// interfaceの初期化
-	DB = database2.NewDB()
+	DBRepository = database.DBRepository{DB: database2.NewDB()}
 	instrumentsInteractor = usecase.InstrumentsInteractor{
-		DB:          &database.DBRepository{DB: DB},
+		DB:          &DBRepository,
 		Instruments: &database.InstrumentsRepository{},
 	}
 	candlesInteractor = usecase.CandlesInteractor{
-		DB:      &database.DBRepository{DB: DB},
+		DB:      &DBRepository,
 		Candles: &database.CandlesRepository{},
 		Api:     oanda.NewCandlesApi(),
+	}
+	orderManager = usecase.OrderManager{
+		DB:              &DBRepository,
+		Orders:          &database.OrdersRepository{},
+		Trades:          &database.TradesRepository{},
+		OrderTradeBinds: &database.OrderTradeBindsRepository{},
+		OrdersApi:       oanda.NewOrdersApi(),
 	}
 
 	// キャッシュの構築
@@ -47,7 +55,7 @@ func init() {
 func main() {
 	// 銘柄ごとにgoroutineを生成し、売買を開始する。
 	data := cacheManager.Get("instruments")
-	instrumentList := data.([]instruments.Instruments)
+	instrumentList := data.([]domain.Instruments)
 
 	var wg sync.WaitGroup
 	wg.Add(len(instrumentList))
@@ -72,10 +80,13 @@ func startTrading(instrumentName string) {
 	tickPerOneDay := time.NewTicker(24 * time.Hour)
 	// 12時間ごとに実行する（日足の売買ルールでセットアップ発生時のみ処理を行う）
 	tickPerHalfDay := time.NewTicker(12 * time.Hour)
+
 	for {
 		select {
 		case <-tickPerOneMin.C:
+			// TODO:売買ルールと資金管理を実行する関数を実行する。
 			candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrumentName, 1, enum.M1))
+			orderManager.DoNewMarketOrder(instrumentName, "1", "0.1")
 		case <-tickPerOneHour.C:
 			candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrumentName, 1, enum.H1))
 		case <-tickPerOneDay.C:

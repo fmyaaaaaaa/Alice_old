@@ -1,8 +1,8 @@
 package usecase
 
 import (
+	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
-	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/instruments"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/cache"
 	"log"
 )
@@ -21,21 +21,21 @@ func (i *InstrumentsInteractor) LoadInstruments() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cacheManager.Set("instruments", instrumentList, enum.NONE)
+	cacheManager.Set("instruments", instrumentList, enum.NoExpiration)
 }
 
 // 主キーをもとに銘柄を取得します。
-func (i *InstrumentsInteractor) Get(id int) (instrument instruments.Instruments, err error) {
+func (i *InstrumentsInteractor) Get(id int) (instrument domain.Instruments, err error) {
 	db := i.DB.Connect()
 	result, err := i.Instruments.FindByID(db, id)
 	if err != nil {
-		return instruments.Instruments{}, err
+		return domain.Instruments{}, err
 	}
 	return result, nil
 }
 
 // 銘柄を全件取得します。
-func (i *InstrumentsInteractor) GetAll() (instrumentList []instruments.Instruments, err error) {
+func (i *InstrumentsInteractor) GetAll() (instrumentList []domain.Instruments, err error) {
 	db := i.DB.Connect()
 	result, err := i.Instruments.FindAll(db)
 	if err != nil {

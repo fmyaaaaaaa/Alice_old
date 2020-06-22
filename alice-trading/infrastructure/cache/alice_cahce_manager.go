@@ -29,10 +29,10 @@ func GetCacheManager() AliceCacheManager {
 // Keyを指定してキャッシュを保存します。
 func (a *AliceCacheManager) Set(key string, target interface{}, d enum.Duration) {
 	switch d {
-	case enum.DEFAULT:
+	case enum.DefaultExpiration:
 		a.AliceCache.Set(key, target, cache.DefaultExpiration)
 		break
-	case enum.NONE:
+	case enum.NoExpiration:
 		a.AliceCache.Set(key, target, cache.NoExpiration)
 		break
 	default:

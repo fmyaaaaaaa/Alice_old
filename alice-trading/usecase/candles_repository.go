@@ -1,14 +1,14 @@
 package usecase
 
 import (
-	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/candles"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/jinzhu/gorm"
 )
 
 // 足データのRepository
 type CandlesRepository interface {
-	FindByID(db *gorm.DB, id int) (candle candles.BidAskCandles, error error)
-	FindAll(db *gorm.DB) (candleList []candles.BidAskCandles)
-	Create(db *gorm.DB, candle *candles.BidAskCandles)
-	Delete(db *gorm.DB, candle *candles.BidAskCandles)
+	FindByID(db *gorm.DB, id int) (candle domain.BidAskCandles, error error)
+	FindAll(db *gorm.DB) (candleList []domain.BidAskCandles)
+	Create(db *gorm.DB, candle *domain.BidAskCandles)
+	Delete(db *gorm.DB, candle *domain.BidAskCandles)
 }
