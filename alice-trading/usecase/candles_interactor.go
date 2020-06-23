@@ -2,13 +2,13 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase/dto"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase/util"
 	"log"
+	"time"
 )
 
 // 足データのユースケース
@@ -65,9 +65,9 @@ func (c *CandlesInteractor) Delete(candle *domain.BidAskCandles) {
 	c.Candles.Delete(db, candle)
 }
 
-// TODO:LineとTrendを判定するロジックの実装は売買ルールにて対応する。(PositiveとUpTrendの固定値を入れている)
 // APIのResponseをBusinessLogicのEntityに変換します。
 func convertToEntity(res *msg.CandlesBidAskResponse, instrumentName string, granularity enum.Granularity) []domain.BidAskCandles {
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	var result []domain.BidAskCandles
 	for _, candle := range res.Candles {
 		target := &domain.BidAskCandles{
@@ -86,13 +86,10 @@ func convertToEntity(res *msg.CandlesBidAskResponse, instrumentName string, gran
 				Low:   util.ParseFloat(candle.Ask.L),
 			},
 			Candles: domain.Candles{
-				Time:   candle.Time,
+				Time:   candle.Time.In(jst),
 				Volume: util.ParseFloat(candle.Volume.String()),
 			},
-			Line:  enum.Positive,
-			Trend: enum.UpTrend,
 		}
-		fmt.Println(target.InstrumentName, target.Candles.Time)
 		result = append(result, *target)
 	}
 	return result

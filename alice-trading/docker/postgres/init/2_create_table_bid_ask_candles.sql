@@ -14,5 +14,6 @@ create table bid_ask_candles
     time            timestamptz,
     volume          numeric,
     line            varchar,
-    trend           varchar
+    trend           varchar,
+    swing_id        int
 );

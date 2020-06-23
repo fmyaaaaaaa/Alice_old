@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="truncate_table and insert initial data" type="DatabaseScript">
+    <script-file value="$PROJECT_DIR$/docker/postgres/patch/0_truncate_table.sql" />
+    <script-file value="$PROJECT_DIR$/docker/postgres/init/99_insert_seeds.sql" />
+    <script-mode>FILE</script-mode>
+    <data-source id="84b7ef8c-c1a0-4ba2-aa82-29dec2de2b33" />
+    <method v="2" />
+  </configuration>
+</component>

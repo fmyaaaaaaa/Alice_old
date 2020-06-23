@@ -1,0 +1,11 @@
+truncate table instruments;
+truncate table bid_ask_candles;
+truncate table orders;
+truncate table trades;
+truncate table order_trade_binds;
+truncate table swing_high_low_prices;
+truncate table swing_targets;
+truncate table iron_man_statuses;
+truncate table trade_rule_statuses;
+truncate table trend_statuses;
+truncate table sequences;
