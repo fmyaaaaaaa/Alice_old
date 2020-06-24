@@ -9,9 +9,15 @@ import (
 // 売買ルールのセットアップステータスのRepository
 type TradeRuleStatusRepository struct{}
 
-func (rep TradeRuleStatusRepository) FindByTradeRuleAndInstrumentAndGranularity(db *gorm.DB, tradeRule enum.TradeRule, instrument string, granularity enum.Granularity) domain.TradeRuleStatus {
+func (rep TradeRuleStatusRepository) FindTargetByTradeRuleAndInstrumentAndGranularity(db *gorm.DB, tradeRule enum.TradeRule, instrument string, granularity enum.Granularity) domain.TradeRuleStatus {
 	var tradeRuleStatus domain.TradeRuleStatus
 	db.Where("trade_rule = ? AND instrument = ? AND granularity = ? AND status = ?", tradeRule, instrument, granularity, true).Find(&tradeRuleStatus)
+	return tradeRuleStatus
+}
+
+func (rep TradeRuleStatusRepository) FindByTradeRuleAndInstrumentAndGranularity(db *gorm.DB, tradeRule enum.TradeRule, instrument string, granularity enum.Granularity) domain.TradeRuleStatus {
+	var tradeRuleStatus domain.TradeRuleStatus
+	db.Where("trade_rule = ? AND instrument = ? AND granularity = ?", tradeRule, instrument, granularity).Find(&tradeRuleStatus)
 	return tradeRuleStatus
 }
 
