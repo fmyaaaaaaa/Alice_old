@@ -111,10 +111,10 @@ func (i IronMan) JudgementTradePlan(tradeRuleStatus domain.TradeRuleStatus, cand
 	switch {
 	case ironManStatus.Trend == enum.UpTrend && highLowPrice.HighPrice <= candle.GetAveMid():
 		tradePlan = true
-		log.Println("IronMan trade plan happened", instrument, granularity, candle.GetAveMid())
+		log.Println("IronMan trade happened", instrument, granularity, candle.GetAveMid())
 	case ironManStatus.Trend == enum.DownTrend && highLowPrice.LowPrice >= candle.GetAveMid():
 		tradePlan = true
-		log.Println("IronMan trade plan happened", instrument, granularity, candle.GetAveMid())
+		log.Println("IronMan trade happened", instrument, granularity, candle.GetAveMid())
 	}
 	// セットアップ済みの売買ルールを完了状態にする。
 	if tradePlan {
@@ -129,13 +129,13 @@ func (i IronMan) CreateTrendStatus(trendStatus *domain.TrendStatus) {
 	i.TrendStatus.Create(DB, trendStatus)
 }
 
-// TradeStatusを取得します。
+// TrendStatusを取得します。
 func (i IronMan) GetTrendStatus(instrument string, granularity enum.Granularity) domain.TrendStatus {
 	DB := i.DB.Connect()
 	return i.TrendStatus.FindByInstrumentAndGranularity(DB, instrument, granularity)
 }
 
-// TradeStatusを更新します。
+// TrendStatusを更新します。
 func (i IronMan) UpdateTrendStatus(trendStatus *domain.TrendStatus, params map[string]interface{}) {
 	DB := i.DB.Connect()
 	i.TrendStatus.Update(DB, trendStatus, params)

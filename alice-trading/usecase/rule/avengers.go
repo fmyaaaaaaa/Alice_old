@@ -68,5 +68,5 @@ func countCandleLine(candles []domain.BidAskCandles) enum.Trend {
 // TradeRuleStatusを取得します。
 func (a Avengers) GetTradeRuleStatus(tradeRule enum.TradeRule, instrument string, granularity enum.Granularity) domain.TradeRuleStatus {
 	DB := a.DB.Connect()
-	return a.TradeRuleStatus.FindByTradeRuleAndInstrumentAndGranularity(DB, tradeRule, instrument, granularity)
+	return a.TradeRuleStatus.FindTargetByTradeRuleAndInstrumentAndGranularity(DB, tradeRule, instrument, granularity)
 }

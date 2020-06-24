@@ -9,3 +9,4 @@ truncate table iron_man_statuses;
 truncate table trade_rule_statuses;
 truncate table trend_statuses;
 truncate table sequences;
+truncate table captain_america_statuses;

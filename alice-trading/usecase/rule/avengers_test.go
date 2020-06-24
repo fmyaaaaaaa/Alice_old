@@ -12,12 +12,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
+	"sort"
 	"testing"
 	"time"
 )
 
 var avengers Avengers
 var ironMan IronMan
+var captainAmerica CaptainAmerica
 
 func TestMain(m *testing.M) {
 	setUp()
@@ -42,6 +44,12 @@ func setUp() {
 		SwingTarget:       &database2.SwingTargetRepository{},
 		IronManStatus:     &database2.IronManStatusRepository{},
 		TradeRuleStatus:   &database2.TradeRuleStatusRepository{},
+	}
+	captainAmerica = CaptainAmerica{
+		DB:                   &database2.DBRepository{DB: DB},
+		TrendStatus:          &database2.TrendStatusRepository{},
+		CaptainAmericaStatus: &database2.CaptainAmericaStatusRepository{},
+		TradeRuleStatus:      &database2.TradeRuleStatusRepository{},
 	}
 }
 
@@ -249,6 +257,93 @@ func initTestDataForIronMan() {
 	ironMan.CreateTrendStatus(trendStatus)
 	ironMan.CreateHighLowPrice(highLowPrice)
 	ironMan.CreateSwingTarget(swingTarget)
+}
+
+func TestCaptainAmerica_JudgementSetup_TradePlan(t *testing.T) {
+	candlesDay := createTestCandlesEURJPYParDay()
+	candles12Hour := createTestCandlesEURJPYPar12Hour()
+	mergedCandles := append(candlesDay, candles12Hour...)
+	sort.Slice(mergedCandles, func(i, j int) bool {
+		return !mergedCandles[i].Candles.Time.After(mergedCandles[j].Candles.Time)
+	})
+	// 日時でソートしたテスト用の足データ
+	var candles []domain.BidAskCandles
+	candles = mergedCandles
+
+	// 時間で処理を分岐するためのフォーマッタ
+	const TimeFormat = "15:04:05"
+	// 日足は candlesDay を順番に処理できるように制御するカウンタ
+	dayCount := 1
+	for i, candle := range candles {
+		if i == 0 || i == 1 {
+			continue
+		}
+		targetTime := candle.Candles.Time.Format(TimeFormat)
+		switch targetTime {
+		case "00:00:00":
+			captainAmerica.JudgementSetup(&candlesDay[dayCount-1], &candlesDay[dayCount], "EUR_JPY", enum.D)
+			tradeRuleStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, "EUR_JPY", enum.D)
+			if ok && captainAmerica.IsExistSecondJudgementTradePlan("EUR_JPY", enum.D) {
+				captainAmerica.JudgementTradePlan(tradeRuleStatus, &candlesDay[dayCount], "EUR_JPY", enum.D)
+			}
+			dayCount++
+		case "12:00:00":
+			tradeRuleStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, "EUR_JPY", enum.D)
+			if ok {
+				captainAmerica.JudgementTradePlan(tradeRuleStatus, &candle, "EUR_JPY", enum.D)
+			}
+		}
+	}
+}
+
+// キャプテン・アメリカのテストデータ（日足 2020-04-28 00:00:00 ~ 2020-06-24 00:00:00）
+func createTestCandlesEURJPYParDay() []domain.BidAskCandles {
+	data, err := os.Open("./../../data/candles_EUR_JPY-D.json")
+	if err != nil {
+		log.Print(err)
+	}
+	defer data.Close()
+	jsonDecoder := json.NewDecoder(data)
+	var candlesRes msg.CandlesBidAskResponse
+	if err = jsonDecoder.Decode(&candlesRes); err != nil {
+		log.Println(err)
+	}
+	candles := convertToEntity(&candlesRes, "EUR_JPY", enum.D)
+	candles[0].Line = enum.Negative
+	candles[0].Trend = enum.DownTrend
+	candles[1].Trend = enum.DownTrend
+	candles[2].Trend = enum.DownTrend
+	candles[3].Trend = enum.Range
+	for i := range candles {
+		if i == 0 {
+			continue
+		} else {
+			avengers.JudgementLine(&candles[i], &candles[i-1])
+		}
+		if i == 1 || i == 2 || i == 3 {
+			continue
+		} else {
+			avengers.JudgementTrend(&candles[i-3], &candles[i-2], &candles[i-1], &candles[i])
+		}
+	}
+	return candles
+}
+
+// キャプテン・アメリカのテストデータ（12時間足 2020-04-28 12:00:00 ~ 2020-06-24 12:00:00）
+// 日足と同一時間の足は削除したテストデータを読み込む。
+func createTestCandlesEURJPYPar12Hour() []domain.BidAskCandles {
+	data, err := os.Open("./../../data/candles_EUR_JPY-H12.json")
+	if err != nil {
+		log.Print(err)
+	}
+	defer data.Close()
+	jsonDecoder := json.NewDecoder(data)
+	var candlesRes msg.CandlesBidAskResponse
+	if err = jsonDecoder.Decode(&candlesRes); err != nil {
+		log.Println(err)
+	}
+	candles := convertToEntity(&candlesRes, "EUR_JPY", enum.D)
+	return candles
 }
 
 // 足データ変換処理のDeepCopy

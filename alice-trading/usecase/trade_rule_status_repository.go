@@ -8,6 +8,7 @@ import (
 
 // 売買ルールのセットアップステータスのRepository
 type TradeRuleStatusRepository interface {
+	FindTargetByTradeRuleAndInstrumentAndGranularity(db *gorm.DB, tradeRule enum.TradeRule, instrument string, granularity enum.Granularity) domain.TradeRuleStatus
 	FindByTradeRuleAndInstrumentAndGranularity(db *gorm.DB, tradeRule enum.TradeRule, instrument string, granularity enum.Granularity) domain.TradeRuleStatus
 	Create(db *gorm.DB, tradeRuleStatus *domain.TradeRuleStatus)
 	Update(db *gorm.DB, tradeRuleStatus *domain.TradeRuleStatus, params map[string]interface{})
