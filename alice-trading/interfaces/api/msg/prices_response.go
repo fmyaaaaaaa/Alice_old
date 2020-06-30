@@ -6,6 +6,10 @@ import (
 )
 
 type PricesResponse struct {
+	Prices []ClientPrice `json:"prices"`
+}
+
+type ClientPrice struct {
 	Type        string    `json:"type"`
 	Time        time.Time `json:"time"`
 	Bids        []BidAsk

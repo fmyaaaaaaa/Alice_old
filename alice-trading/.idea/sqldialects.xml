@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/10_create_table_trade_rules.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/11_create_table_trade_rule_statuses.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/12_create_table_setup_info.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/13_create_table_trend_statuses.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/14_create_table_sequences.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/15_create_table_accounts.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/16_create_table_positions.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/17_create_table_balance_managements.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/18_create_table_back_test_results.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/1_create_table_instruments.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/2_create_table_bid_ask_candles.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/3_create_table_orders.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/4_create_table_trades.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/6_create_table_swing_high_low_prices.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/7_create_table_swing_targets.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/8_create_table_captain_america_statuses.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/99_insert_seeds.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/init/9_create_table_iron_man_statuses.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/docker/postgres/patch/0_truncate_table.sql" dialect="PostgreSQL" />
+  </component>
+</project>
