@@ -32,14 +32,15 @@ func setUp() {
 	config.InitInstance("test", dummyConf)
 	DB := database.NewDB()
 	avengers = Avengers{
-		DB:              &database2.DBRepository{DB: DB},
-		Candles:         &database2.CandlesRepository{},
-		TradeRuleStatus: &database2.TradeRuleStatusRepository{},
-	}
-	ironMan = IronMan{
 		DB:                &database2.DBRepository{DB: DB},
 		TrendStatus:       &database2.TrendStatusRepository{},
 		Sequence:          &database2.SequenceRepository{},
+		TradeRuleStatus:   &database2.TradeRuleStatusRepository{},
+		SwingHighLowPrice: &database2.SwingHighLowPriceRepository{},
+		SwingTarget:       &database2.SwingTargetRepository{},
+	}
+	ironMan = IronMan{
+		DB:                &database2.DBRepository{DB: DB},
 		SwingHighLowPrice: &database2.SwingHighLowPriceRepository{},
 		SwingTarget:       &database2.SwingTargetRepository{},
 		IronManStatus:     &database2.IronManStatusRepository{},
@@ -54,12 +55,6 @@ func setUp() {
 }
 
 func TestAvengers_JudgementLine(t *testing.T) {
-	// 一つ前の足データ
-	lastCandle := &domain.BidAskCandles{
-		Bid:  domain.BidRate{Open: 100, Close: 120},
-		Ask:  domain.AskRate{Open: 110, Close: 130},
-		Line: enum.Positive,
-	}
 	// 陽線
 	positiveCandle := &domain.BidAskCandles{
 		Bid: domain.BidRate{Open: 110, Close: 120},
@@ -75,9 +70,9 @@ func TestAvengers_JudgementLine(t *testing.T) {
 		Bid: domain.BidRate{Open: 110, Close: 110},
 		Ask: domain.AskRate{Open: 120, Close: 120},
 	}
-	avengers.JudgementLine(positiveCandle, lastCandle)
-	avengers.JudgementLine(negativeCandle, lastCandle)
-	avengers.JudgementLine(sameCandle, lastCandle)
+	avengers.JudgementLine(positiveCandle)
+	avengers.JudgementLine(negativeCandle)
+	avengers.JudgementLine(sameCandle)
 
 	assert.Equal(t, enum.Positive, positiveCandle.Line)
 	assert.Equal(t, enum.Negative, negativeCandle.Line)
@@ -194,6 +189,7 @@ func TestIronMan_JudgementSetup_TradePlan(t *testing.T) {
 	initTestDataForIronMan()
 	candles := createTestCandlesAUDNZD()
 	for i := range candles {
+		avengers.JudgementSwingAndAllTrend(&candles[i], "AUD_NZD", enum.H1)
 		ironMan.JudgementSetup(&candles[i], "AUD_NZD", enum.H1)
 		tradeRuleStatus, ok := avengers.IsExistSetUpTradeRule(enum.IronMan, "AUD_NZD", enum.H1)
 		if ok {
@@ -228,7 +224,7 @@ func createTestCandlesAUDNZD() []domain.BidAskCandles {
 		if i == 0 {
 			continue
 		} else {
-			avengers.JudgementLine(&candles[i], &candles[i-1])
+			avengers.JudgementLine(&candles[i])
 		}
 		if i == 1 || i == 2 || i == 3 {
 			continue
@@ -254,9 +250,9 @@ func initTestDataForIronMan() {
 	// スイングターゲット
 	swingTarget := domain.NewSwingTarget("AUD_NZD", enum.H1, 1)
 
-	ironMan.CreateTrendStatus(trendStatus)
-	ironMan.CreateHighLowPrice(highLowPrice)
-	ironMan.CreateSwingTarget(swingTarget)
+	avengers.CreateTrendStatus(trendStatus)
+	avengers.CreateHighLowPrice(highLowPrice)
+	avengers.CreateSwingTarget(swingTarget)
 }
 
 func TestCaptainAmerica_JudgementSetup_TradePlan(t *testing.T) {
@@ -318,7 +314,7 @@ func createTestCandlesEURJPYParDay() []domain.BidAskCandles {
 		if i == 0 {
 			continue
 		} else {
-			avengers.JudgementLine(&candles[i], &candles[i-1])
+			avengers.JudgementLine(&candles[i])
 		}
 		if i == 1 || i == 2 || i == 3 {
 			continue

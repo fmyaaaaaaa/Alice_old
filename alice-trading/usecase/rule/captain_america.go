@@ -3,8 +3,10 @@ package rule
 import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase"
 	"log"
+	"strconv"
 )
 
 type CaptainAmerica struct {
@@ -36,7 +38,14 @@ func (c CaptainAmerica) JudgementSetup(lastCandle, currentCandle *domain.BidAskC
 }
 
 // 足データをもとにトレード計画を判定します。
-func (c CaptainAmerica) JudgementTradePlan(tradeRuleStatus domain.TradeRuleStatus, currentCandle *domain.BidAskCandles, instrument string, granularity enum.Granularity) {
+func (c CaptainAmerica) JudgementTradePlan(tradeRuleStatus domain.TradeRuleStatus, currentCandle *domain.BidAskCandles, instrument string, granularity enum.Granularity) (bool, string) {
+	// 注文数量
+	units := 0
+	// セットアップと同一の足データの場合は処理をスキップ。
+	// トレード計画の判定はセットアップの次回足データを対象とするため。
+	if tradeRuleStatus.CandleTime.Equal(currentCandle.Candles.Time) {
+		return false, strconv.Itoa(units)
+	}
 	// セットアップを取得
 	captainAmericaStatus := c.GetCaptainAmericaStatus(instrument, granularity)
 	tradePlan := false
@@ -45,20 +54,22 @@ func (c CaptainAmerica) JudgementTradePlan(tradeRuleStatus domain.TradeRuleStatu
 	case enum.Positive:
 		if captainAmericaStatus.SetupPrice <= currentCandle.GetCloseMid() {
 			tradePlan = true
+			units = config.GetInstance().Property.OrderLot
 			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
 		}
 	case enum.Negative:
 		if captainAmericaStatus.SetupPrice >= currentCandle.GetCloseMid() {
 			tradePlan = true
+			units = -config.GetInstance().Property.OrderLot
 			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
 		}
 	}
-
 	// トレード計画の結果に応じて、売買ルールの状態を変更する。
-	c.HandleCaptainAmericaStatus(&captainAmericaStatus, tradePlan)
 	if tradePlan || captainAmericaStatus.SecondJudge {
 		c.CompleteTradeRuleStatus(&tradeRuleStatus)
 	}
+	c.HandleCaptainAmericaStatus(&captainAmericaStatus, tradePlan)
+	return tradePlan, strconv.Itoa(units)
 }
 
 // 銘柄、足種でセットアップ済みまたは取引済みかどうかを確認します。

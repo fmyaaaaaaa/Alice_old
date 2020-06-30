@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
+	"time"
+)
 
 // 取引
 type Trades struct {
@@ -9,7 +12,7 @@ type Trades struct {
 	Units        float64
 	Price        float64
 	Instrument   string
-	State        string
+	State        enum.TradeState
 	InitialUnits float64
 	CurrentUnits float64
 	RealizedPl   float64

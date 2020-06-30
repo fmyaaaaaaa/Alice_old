@@ -9,8 +9,9 @@ var instance *AliceConfig
 var once sync.Once
 
 type AliceConfig struct {
-	Api Api
-	DB  DB
+	Api      Api
+	DB       DB
+	Property Property
 }
 
 type Api struct {
@@ -25,6 +26,11 @@ type DB struct {
 	UserName string `toml:"User_name"`
 	Password string `toml:"password"`
 	DBName   string `toml:"Db_name"`
+}
+
+type Property struct {
+	RiskTolerancePrice int `toml:"Risk_tolerance_price"`
+	OrderLot           int `toml:"Order_lot"`
 }
 
 func NewConfig(path string, appMode string) (AliceConfig, error) {
@@ -46,8 +52,10 @@ func InitInstance(appMode string, confParams []string) bool {
 		switch appMode {
 		case "local", "test":
 			res = initLocalOrTest(appMode, instance, confParams)
+			res = initLocalOrTest("common", instance, confParams)
 			break
 		case "develop", "staging", "production":
+			res = initSystemProperty(instance)
 			res = initDevelopOrStagingOrProduction(instance, confParams)
 			break
 		default:
@@ -58,8 +66,8 @@ func InitInstance(appMode string, confParams []string) bool {
 }
 
 // Local/Testモードで起動した場合の初期化を行います。
-func initLocalOrTest(appMode string, instance *AliceConfig, confParams []string) bool {
-	confPath := confParams[1] + appMode + ".toml"
+func initLocalOrTest(confName string, instance *AliceConfig, confParams []string) bool {
+	confPath := confParams[1] + confName + ".toml"
 	if _, err := toml.DecodeFile(confPath, &instance); err == nil {
 		return true
 	}
@@ -84,9 +92,19 @@ func initDevelopOrStagingOrProduction(instance *AliceConfig, confParams []string
 	dbName := confParams[8]
 
 	conf := AliceConfig{Api: Api{Url: url, AccountId: accountID, AccessToken: accessToken},
-		DB: DB{Host: host, Port: port, UserName: userName, Password: password, DBName: dbName}}
+		DB:       DB{Host: host, Port: port, UserName: userName, Password: password, DBName: dbName},
+		Property: Property{RiskTolerancePrice: instance.Property.RiskTolerancePrice, OrderLot: instance.Property.OrderLot}}
 	*instance = conf
 	return true
+}
+
+// システムプロパティを初期化します。
+func initSystemProperty(instance *AliceConfig) bool {
+	confPath := "./infrastructure/config/env/common.toml"
+	if _, err := toml.DecodeFile(confPath, &instance); err == nil {
+		return true
+	}
+	return false
 }
 
 func GetInstance() *AliceConfig {

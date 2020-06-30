@@ -22,7 +22,7 @@ type OrderManager struct {
 // 新規Market注文を発注します。
 // 発注時にトレーリングストップを設定します。
 // 発注結果から新規注文、トレーリング注文、取引情報を保存します。
-func (o OrderManager) DoNewMarketOrder(instrument, units, distance string) {
+func (o OrderManager) DoNewMarketOrder(instrument, units, distance string) *domain.Trades {
 	// トレーリングストップ
 	trailing := &msg.TrailingStopLossDetails{
 		Distance:    distance,
@@ -33,17 +33,21 @@ func (o OrderManager) DoNewMarketOrder(instrument, units, distance string) {
 	createRes, errRes := o.OrdersApi.CreateNewOrder(context.Background(), reqParam)
 	if errRes != nil {
 		log.Print("fail to new Order", errRes.ErrorCode, errRes.ErrorMessage)
+		return nil
 	}
 	// 注文情報を保存する
 	o.CreateOrder(o.convertToEntityCreateOrder(createRes, enum.Fok, enum.Market, distance))
 	// 取引情報を保存する
-	o.CreateTrade(o.convertToEntityTrade(createRes))
+	trade := o.convertToEntityTrade(createRes)
+	o.CreateTrade(trade)
 	// トレーリングストップ注文情報を取得し、保存する。
 	// FIXME:注文結果のレスポンスでトレーリングストップのIDに合わせて確認する
 	getRes := o.OrdersApi.GetOrder(context.Background(), createRes.LastTransactionID)
 	o.CreateOrder(o.convertToEntityGetOrder(getRes, instrument, units))
 	// 注文情報と取引情報の紐付けを保存する。
 	o.CreateBind(o.convertToEntityBind(createRes))
+
+	return trade
 }
 
 // 引数の注文情報を保存します。

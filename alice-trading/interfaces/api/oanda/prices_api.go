@@ -6,41 +6,38 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/strings"
+	"log"
 	"net/http"
 )
 
-// リアルタイムレートのAPI
+// レートのAPI
 type PricesApi struct {
 	RootApi
 }
 
-func NewPricesApi() (*PricesApi, error) {
+func NewPricesApi() *PricesApi {
 	httpClient := &http.Client{}
-	parsedUrl := strings.ParsedUrl("https://stream-fxpractice.oanda.com")
-	return &PricesApi{RootApi{URL: parsedUrl, HTTPClient: httpClient}}, nil
+	parsedUrl := strings.ParsedUrl(config.GetInstance().Api.Url)
+	return &PricesApi{RootApi{URL: parsedUrl, HTTPClient: httpClient}}
 }
 
-// リアルタイムレートを取得します。（HttpStreaming）
-func (p PricesApi) StreamingPrices(ctx context.Context, instrumentName string) {
-	strPath := fmt.Sprintf("/v3/accounts/%s/pricing/stream", config.GetInstance().Api.AccountId)
+// 指定した銘柄のレートを取得します。
+func (p PricesApi) GetPrices(ctx context.Context, instrument string) *msg.PricesResponse {
+	strPath := fmt.Sprintf("/v3/accounts/%s/pricing", config.GetInstance().Api.AccountId)
 	req, err := p.newRequest(ctx, "GET", strPath, nil)
-	if err != nil {
-		panic(err)
-	}
-
 	params := req.URL.Query()
-	params.Add("instruments", instrumentName)
+	params.Add("instruments", instrument)
 	req.URL.RawQuery = params.Encode()
-
+	if err != nil {
+		log.Println(err)
+	}
 	res, err := p.HTTPClient.Do(req)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
-
-	for {
-		var prices msg.PricesResponse
-		if err := p.decodeBodyForStreaming(res, &prices); err != nil {
-			panic(err)
-		}
+	var price msg.PricesResponse
+	if err := p.decodeBody(res, &price); err != nil {
+		log.Println(err)
 	}
+	return &price
 }
