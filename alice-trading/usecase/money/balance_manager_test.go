@@ -6,6 +6,7 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/oanda"
 	database2 "github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/database"
 	"github.com/stretchr/testify/assert"
+	"math"
 	"os"
 	"testing"
 )
@@ -35,5 +36,5 @@ func TestBalanceManager_CalculationPips(t *testing.T) {
 	riskTolerancePrice := -3000.0
 	basePrice := 107.45
 	result := balanceManager.CalculationPips(riskTolerancePrice, basePrice)
-	assert.Equal(t, float64(27), result)
+	assert.Equal(t, float64(27), math.Trunc(result))
 }
