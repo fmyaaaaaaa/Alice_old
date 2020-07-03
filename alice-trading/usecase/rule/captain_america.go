@@ -38,13 +38,13 @@ func (c CaptainAmerica) JudgementSetup(lastCandle, currentCandle *domain.BidAskC
 }
 
 // 足データをもとにトレード計画を判定します。
-func (c CaptainAmerica) JudgementTradePlan(tradeRuleStatus domain.TradeRuleStatus, currentCandle *domain.BidAskCandles, instrument string, granularity enum.Granularity) (bool, string) {
+func (c CaptainAmerica) JudgementTradePlan(tradeRuleStatus domain.TradeRuleStatus, currentCandle *domain.BidAskCandles, instrument string, granularity enum.Granularity) (bool, string, domain.CaptainAmericaStatus) {
 	// 注文数量
 	units := 0
 	// セットアップと同一の足データの場合は処理をスキップ。
 	// トレード計画の判定はセットアップの次回足データを対象とするため。
 	if tradeRuleStatus.CandleTime.Equal(currentCandle.Candles.Time) {
-		return false, strconv.Itoa(units)
+		return false, strconv.Itoa(units), domain.CaptainAmericaStatus{}
 	}
 	// セットアップを取得
 	captainAmericaStatus := c.GetCaptainAmericaStatus(instrument, granularity)
@@ -52,13 +52,13 @@ func (c CaptainAmerica) JudgementTradePlan(tradeRuleStatus domain.TradeRuleStatu
 	// TODO:資金管理から数量、トレーリングストップ値幅を取得し、OrderManagerから注文を実行する
 	switch captainAmericaStatus.Line {
 	case enum.Positive:
-		if captainAmericaStatus.SetupPrice <= currentCandle.GetCloseMid() {
+		if captainAmericaStatus.SetupPrice <= currentCandle.GetCloseMid() && currentCandle.Line == enum.Positive {
 			tradePlan = true
 			units = config.GetInstance().Property.OrderLot
 			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
 		}
 	case enum.Negative:
-		if captainAmericaStatus.SetupPrice >= currentCandle.GetCloseMid() {
+		if captainAmericaStatus.SetupPrice >= currentCandle.GetCloseMid() && currentCandle.Line == enum.Negative {
 			tradePlan = true
 			units = -config.GetInstance().Property.OrderLot
 			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
@@ -69,7 +69,7 @@ func (c CaptainAmerica) JudgementTradePlan(tradeRuleStatus domain.TradeRuleStatu
 		c.CompleteTradeRuleStatus(&tradeRuleStatus)
 	}
 	c.HandleCaptainAmericaStatus(&captainAmericaStatus, tradePlan)
-	return tradePlan, strconv.Itoa(units)
+	return tradePlan, strconv.Itoa(units), captainAmericaStatus
 }
 
 // 銘柄、足種でセットアップ済みまたは取引済みかどうかを確認します。
@@ -112,6 +112,22 @@ func (c CaptainAmerica) CreateOrUpdateCaptainAmericaStatus(captainAmericaStatus 
 	}
 }
 
+// キャプテンアメリカのステータスをリセットします。
+func (c CaptainAmerica) ResetCaptainAmericaStatus(instrument string, granularity enum.Granularity) {
+	DB := c.DB.Connect()
+	c.CaptainAmericaStatus.Reset(DB, instrument, granularity)
+}
+
+// 新規注文完了後にトレードステータスを更新します。
+func (c CaptainAmerica) CompleteTradeStatus(captainAmericaStatus *domain.CaptainAmericaStatus) {
+	DB := c.DB.Connect()
+	// セットアップ済みの売買ルールを完了、取引ステータスを取引中に更新する。
+	params := map[string]interface{}{
+		"trade_status": true,
+	}
+	c.CaptainAmericaStatus.Update(DB, captainAmericaStatus, params)
+}
+
 // トレード計画の検証結果に応じて、キャプテンアメリカのステータスを更新します。
 func (c CaptainAmerica) HandleCaptainAmericaStatus(captainAmericaStatus *domain.CaptainAmericaStatus, tradePlan bool) {
 	DB := c.DB.Connect()
@@ -119,7 +135,6 @@ func (c CaptainAmerica) HandleCaptainAmericaStatus(captainAmericaStatus *domain.
 	// セットアップ済みの売買ルールを完了、取引ステータスを取引中に更新する。
 	if tradePlan {
 		params["setup_status"] = false
-		params["trade_status"] = true
 		params["second_judge"] = false
 	} else {
 		if captainAmericaStatus.SecondJudge {

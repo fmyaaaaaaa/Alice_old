@@ -11,4 +11,5 @@ type CaptainAmericaStatusRepository interface {
 	FindByInstrumentAndGranularity(db *gorm.DB, instrument string, granularity enum.Granularity) domain.CaptainAmericaStatus
 	Create(db *gorm.DB, captainAmericaStatus *domain.CaptainAmericaStatus)
 	Update(db *gorm.DB, captainAmericaStatus *domain.CaptainAmericaStatus, params map[string]interface{})
+	Reset(db *gorm.DB, instrument string, granularity enum.Granularity)
 }

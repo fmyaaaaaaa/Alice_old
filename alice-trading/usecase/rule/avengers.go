@@ -95,11 +95,11 @@ func (a Avengers) createNewSwing(candle *domain.BidAskCandles, currentTrend doma
 		params["last_swing_id"] = *swingID
 
 		// 新しく採番されたSwingIDに対して高値/安値を作成する。
-		highLowPrice := domain.NewSwingHighLowPrice(nextSwingID, candle.GetHighMid(), candle.GetLowMid())
+		//highLowPrice := domain.NewSwingHighLowPrice(nextSwingID, candle.GetHighMid(), candle.GetLowMid())
 		// ターゲットとなる高値/安値を更新する。
-		nextSwingTarget := domain.NewSwingTarget(candle.InstrumentName, candle.Granularity, currentTrend.LastSwingID)
-		a.CreateHighLowPrice(highLowPrice)
-		a.CreateSwingTarget(nextSwingTarget)
+		//nextSwingTarget := domain.NewSwingTarget(candle.InstrumentName, candle.Granularity, currentTrend.LastSwingID)
+		//a.CreateHighLowPrice(highLowPrice)
+		//a.CreateSwingTarget(nextSwingTarget)
 	}
 	a.UpdateTrendStatus(&currentTrend, params)
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/strings"
 	"log"
 	"net/http"
+	strings2 "strings"
 )
 
 // ポジションのAPI
@@ -73,4 +74,25 @@ func (p PositionsApi) GetOpenPositions(ctx context.Context) *msg.PositionsRespon
 		log.Println(err)
 	}
 	return &position
+}
+
+func (p PositionsApi) ClosePosition(ctx context.Context, instrument string, units float64) {
+	strPath := fmt.Sprintf("/v3/accounts/%s/positions/%s/close", config.GetInstance().Api.AccountId, instrument)
+	var params string
+	if units < 0 {
+		params = `{"shortUnits": "ALL"}`
+	} else {
+		params = `{"longUnits": "ALL"}`
+	}
+	req, err := p.newRequest(ctx, "PUT", strPath, strings2.NewReader(params))
+	if err != nil {
+		log.Println(err)
+	}
+	res, err := p.HTTPClient.Do(req)
+	if err != nil {
+		log.Println(err)
+	}
+	if res.StatusCode == http.StatusOK {
+		log.Println("Complete Profit Gain Order :", instrument)
+	}
 }

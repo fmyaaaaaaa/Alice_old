@@ -10,4 +10,5 @@ type PositionsApi interface {
 	GetPosition(ctx context.Context, instrument string) *msg.PositionResponse
 	GetPositions(ctx context.Context) *msg.PositionsResponse
 	GetOpenPositions(ctx context.Context) *msg.PositionsResponse
+	ClosePosition(ctx context.Context, instrument string, units float64)
 }

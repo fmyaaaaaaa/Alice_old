@@ -105,7 +105,7 @@ func (b BalanceManager) CalculationDelta(instrument domain.Instruments, basePric
 		minMargin = float64(config.GetInstance().Property.OrderLot) * mid * marginRate * basePrice
 	}
 	// FIXME:暫定でこの値にする。
-	delta := maxDrawDown + (minMargin / 3)
+	delta := maxDrawDown + (minMargin / 4)
 	return delta
 }
 
