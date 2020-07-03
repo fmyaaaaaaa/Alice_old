@@ -1,3 +1,4 @@
 [property]
 risk_tolerance_price = -2000
 order_lot = 10000
+profit_gain_price = 500.0

@@ -4,6 +4,7 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/jinzhu/gorm"
+	"log"
 )
 
 // キャプテン・アメリカのセットアップステータスRepository
@@ -21,4 +22,18 @@ func (rep CaptainAmericaStatusRepository) Create(db *gorm.DB, captainAmericaStat
 
 func (rep CaptainAmericaStatusRepository) Update(db *gorm.DB, captainAmericaStatus *domain.CaptainAmericaStatus, params map[string]interface{}) {
 	db.Model(&captainAmericaStatus).Updates(params)
+}
+
+func (rep CaptainAmericaStatusRepository) Reset(db *gorm.DB, instrument string, granularity enum.Granularity) {
+	var target domain.CaptainAmericaStatus
+	tx := db.Begin()
+	tx.Where("instrument = ? AND granularity = ?", instrument, granularity).Find(&target)
+	params := map[string]interface{}{
+		"setup_status": false,
+		"trade_status": false,
+		"second_judge": false,
+	}
+	tx.Model(&target).Updates(params)
+	log.Print("Reset CaptainAmericaStatus :", instrument, granularity)
+	tx.Commit()
 }

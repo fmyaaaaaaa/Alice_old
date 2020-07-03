@@ -34,12 +34,12 @@ func (a AccountManager) GetAccount() domain.Accounts {
 }
 
 // ポジションの保有状況を取得します。
-func (a AccountManager) HasPosition(instrument string) bool {
+func (a AccountManager) HasPosition(instrument string) (bool, domain.Positions) {
 	position := a.GetPosition(instrument)
 	if position.Units != 0 {
-		return true
+		return true, position
 	}
-	return false
+	return false, position
 }
 
 // ポジション情報を新規作成または更新します。
@@ -65,6 +65,11 @@ func (a AccountManager) UpdatePositionsInformation() *[]domain.Positions {
 	positions := a.convertToEntityPositions(res)
 	a.updateBulkPositions(positions)
 	return positions
+}
+
+// 指定した銘柄のポジションをクローズします。
+func (a AccountManager) ClosePosition(instrument string, units float64) {
+	a.PositionsApi.ClosePosition(context.Background(), instrument, units)
 }
 
 // アカウント情報を更新します。

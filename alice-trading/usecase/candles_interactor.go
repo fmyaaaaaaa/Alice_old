@@ -20,11 +20,10 @@ type CandlesInteractor struct {
 	Api     CandlesApi
 }
 
-// TODO:起動時に取得対象となる足種を指定する。（H1のみ取得している）
 // APIで足データを取得し、DBに保存します。
 // システム起動時のみ利用します。
 func (c CandlesInteractor) InitializeCandle(instrument domain.Instruments, granularity enum.Granularity) (needJudge bool) {
-	return c.GetOrLoadCandles(dto.NewCandlesGetDto(instrument.Instrument, 4, granularity))
+	return c.GetOrLoadCandles(dto.NewCandlesGetDto(instrument.Instrument, 5, granularity))
 }
 
 // 足データのキャッシュを構築します。
@@ -44,7 +43,7 @@ func (c CandlesInteractor) GetOrLoadCandles(dto dto.CandlesGetDto) (needJudge bo
 // 足データをAPIを実行し取得します。
 func (c CandlesInteractor) GetCandle(candlesGetDto dto.CandlesGetDto) []domain.BidAskCandles {
 	res, _ := c.Api.GetCandleBidAsk(context.Background(), candlesGetDto.InstrumentName, candlesGetDto.Count, candlesGetDto.Granularity)
-	return c.convertToEntity(res, candlesGetDto.InstrumentName, candlesGetDto.Granularity)
+	return c.convertToInitialEntity(res, candlesGetDto.InstrumentName, candlesGetDto.Granularity)
 }
 
 // 足データをDBから取得します。
@@ -89,11 +88,14 @@ func (c CandlesInteractor) Delete(candle *domain.BidAskCandles) {
 	c.Candles.Delete(db, candle)
 }
 
-// APIのResponseをBusinessLogicのEntityに変換します。
-func (c CandlesInteractor) convertToEntity(res *msg.CandlesBidAskResponse, instrumentName string, granularity enum.Granularity) []domain.BidAskCandles {
+// 初期化時のみの利用を想定しています。また、最後の足データは返却しません。
+func (c CandlesInteractor) convertToInitialEntity(res *msg.CandlesBidAskResponse, instrumentName string, granularity enum.Granularity) []domain.BidAskCandles {
 	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	var result []domain.BidAskCandles
-	for _, candle := range res.Candles {
+	for i, candle := range res.Candles {
+		if i == len(res.Candles)-1 {
+			continue
+		}
 		target := &domain.BidAskCandles{
 			InstrumentName: instrumentName,
 			Granularity:    granularity,
