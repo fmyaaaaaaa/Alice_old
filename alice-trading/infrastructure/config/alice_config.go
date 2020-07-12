@@ -59,14 +59,12 @@ func InitInstance(appMode string, confParams []string) bool {
 	once.Do(func() {
 		instance = &AliceConfig{}
 		switch appMode {
-		case "local", "test":
+		case "local", "test", "backTest":
 			res = initLocalOrTest(appMode, instance, confParams)
 			res = initLocalOrTest("common", instance, confParams)
-			break
 		case "develop", "staging", "production":
 			res = initSystemProperty(instance)
 			res = initDevelopOrStagingOrProduction(instance, confParams)
-			break
 		default:
 			panic("something wrong happened : appMode")
 		}

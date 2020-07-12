@@ -10,3 +10,6 @@ truncate table trade_rule_statuses;
 truncate table trend_statuses;
 truncate table sequences;
 truncate table captain_america_statuses;
+truncate table balance_managements;
+truncate table positions;
+truncate table accounts;

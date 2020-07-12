@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/backtest/controller"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/cache"
@@ -99,6 +100,12 @@ func init() {
 }
 
 func main() {
+	// backTestモードの場合
+	if flag.Arg(0) == "backTest" {
+		controller.StartServer()
+		return
+	}
+
 	data := cacheManager.Get("instruments")
 	instruments := data.([]domain.Instruments)
 
@@ -141,7 +148,7 @@ func createCandleData(instruments []domain.Instruments, tradeType enum.TradeType
 	}
 }
 
-// トレードルールによるハンドリングを行います。
+// 売買ルールによるハンドリングを行います。
 func handleTradeRule(instrument domain.Instruments) {
 	switch enum.TradeRule(config.GetInstance().Rule.TradeRule) {
 	case enum.CaptainAmerica:
@@ -362,6 +369,7 @@ func setCandles(candles []domain.BidAskCandles, instrument string, granularity e
 func handlePosition(position domain.Positions, instrument string, granularity enum.Granularity) {
 	if position.Units == 0 {
 		captainAmerica.ResetCaptainAmericaStatus(instrument, granularity)
+		log.Print("Reset CaptainAmericaStatus :", instrument, granularity)
 	}
 	if granularity == enum.H1 && position.UnrealizedPL > config.GetInstance().Property.ProfitGainPrice {
 		accountManager.ClosePosition(instrument, position.Units)

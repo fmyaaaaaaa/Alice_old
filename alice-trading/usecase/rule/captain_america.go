@@ -49,7 +49,6 @@ func (c CaptainAmerica) JudgementTradePlan(tradeRuleStatus domain.TradeRuleStatu
 	// セットアップを取得
 	captainAmericaStatus := c.GetCaptainAmericaStatus(instrument, granularity)
 	tradePlan := false
-	// TODO:資金管理から数量、トレーリングストップ値幅を取得し、OrderManagerから注文を実行する
 	switch captainAmericaStatus.Line {
 	case enum.Positive:
 		if captainAmericaStatus.SetupPrice <= currentCandle.GetCloseMid() && currentCandle.Line == enum.Positive {
