@@ -183,11 +183,12 @@ func startDayTradingCaptainAmerica(instrument domain.Instruments) {
 		select {
 		case <-tickPerOneMin.C:
 			if ok, _ := accountManager.HasPosition(instrument.Instrument); ok {
-				position := accountManager.UpdatePositionInformation(instrument.Instrument)
-				handlePosition(position, instrument.Instrument, enum.H1)
-				if ok, currentAccountLevel, tradeRule := balanceManager.JudgementProfit(accountManager.GetPosition(instrument.Instrument)); ok {
-					distance, trade, position := doCreateNewOrder(instrument, strconv.FormatFloat(accountManager.GetPosition(instrument.Instrument).Units, 'f', 0, 64))
-					balanceManager.RegisterNextBalanceManagements(instrument, trade, position, tradeRule, currentAccountLevel, distance)
+				if ok, position := accountManager.UpdatePositionInformation(instrument.Instrument); ok {
+					handlePosition(position, instrument.Instrument, enum.H1)
+					if ok, currentAccountLevel, tradeRule := balanceManager.JudgementProfit(accountManager.GetPosition(instrument.Instrument)); ok {
+						distance, trade, position := doCreateNewOrder(instrument, strconv.FormatFloat(accountManager.GetPosition(instrument.Instrument).Units, 'f', 0, 64))
+						balanceManager.RegisterNextBalanceManagements(instrument, trade, position, tradeRule, currentAccountLevel, distance)
+					}
 				}
 			}
 		case <-tickPerOneHour.C:
@@ -238,11 +239,12 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 		select {
 		case <-tickPerOneMin.C:
 			if ok, _ := accountManager.HasPosition(instrument.Instrument); ok {
-				position := accountManager.UpdatePositionInformation(instrument.Instrument)
-				handlePosition(position, instrument.Instrument, enum.D)
-				if ok, currentAccountLevel, tradeRule := balanceManager.JudgementProfit(accountManager.GetPosition(instrument.Instrument)); ok {
-					distance, trade, position := doCreateNewOrder(instrument, strconv.FormatFloat(accountManager.GetPosition(instrument.Instrument).Units, 'f', 0, 64))
-					balanceManager.RegisterNextBalanceManagements(instrument, trade, position, tradeRule, currentAccountLevel, distance)
+				if ok, position := accountManager.UpdatePositionInformation(instrument.Instrument); ok {
+					handlePosition(position, instrument.Instrument, enum.D)
+					if ok, currentAccountLevel, tradeRule := balanceManager.JudgementProfit(accountManager.GetPosition(instrument.Instrument)); ok {
+						distance, trade, position := doCreateNewOrder(instrument, strconv.FormatFloat(accountManager.GetPosition(instrument.Instrument).Units, 'f', 0, 64))
+						balanceManager.RegisterNextBalanceManagements(instrument, trade, position, tradeRule, currentAccountLevel, distance)
+					}
 				}
 			}
 		case <-tickPerDay.C:

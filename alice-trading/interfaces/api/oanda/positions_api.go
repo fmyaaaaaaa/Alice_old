@@ -23,21 +23,23 @@ func NewPositionsApi() *PositionsApi {
 }
 
 // 銘柄を指定してポジションを取得します。
-func (p PositionsApi) GetPosition(ctx context.Context, instrument string) *msg.PositionResponse {
+func (p PositionsApi) GetPosition(ctx context.Context, cancel context.CancelFunc, instrument string) (*msg.PositionResponse, error) {
+	defer cancel()
 	strPath := fmt.Sprintf("/v3/accounts/%s/positions/%s", config.GetInstance().Api.AccountId, instrument)
 	req, err := p.newRequest(ctx, "GET", strPath, nil)
 	if err != nil {
 		log.Println(err)
 	}
-	res, err := p.HTTPClient.Do(req)
+	res, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
 		log.Println(err)
+		return &msg.PositionResponse{}, err
 	}
 	var position msg.PositionResponse
 	if err := p.decodeBody(res, &position); err != nil {
 		log.Println(err)
 	}
-	return &position
+	return &position, nil
 }
 
 // 全銘柄のポジションを取得します。
