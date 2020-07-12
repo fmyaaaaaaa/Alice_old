@@ -22,19 +22,21 @@ func NewAccountApi() *AccountsApi {
 }
 
 // アカウントのサマリーを取得します。
-func (a AccountsApi) GetAccountSummary(ctx context.Context) *msg.AccountSummaryResponse {
+func (a AccountsApi) GetAccountSummary(ctx context.Context, cancel context.CancelFunc) (*msg.AccountSummaryResponse, error) {
+	defer cancel()
 	strPath := fmt.Sprintf("/v3/accounts/%s/summary", config.GetInstance().Api.AccountId)
 	req, err := a.newRequest(ctx, "GET", strPath, nil)
 	if err != nil {
 		log.Println(err)
 	}
-	res, err := a.HTTPClient.Do(req)
+	res, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
 		log.Println(err)
+		return &msg.AccountSummaryResponse{}, err
 	}
 	var accountSummary msg.AccountSummaryResponse
 	if err := a.decodeBody(res, &accountSummary); err != nil {
 		log.Println(err)
 	}
-	return &accountSummary
+	return &accountSummary, nil
 }

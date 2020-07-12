@@ -7,5 +7,5 @@ import (
 
 // アカウントのAPI
 type AccountsApi interface {
-	GetAccountSummary(ctx context.Context) *msg.AccountSummaryResponse
+	GetAccountSummary(ctx context.Context, cancel context.CancelFunc) (*msg.AccountSummaryResponse, error)
 }

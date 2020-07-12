@@ -7,7 +7,7 @@ import (
 
 // ポジションのAPI
 type PositionsApi interface {
-	GetPosition(ctx context.Context, instrument string) *msg.PositionResponse
+	GetPosition(ctx context.Context, cancel context.CancelFunc, instrument string) (*msg.PositionResponse, error)
 	GetPositions(ctx context.Context) *msg.PositionsResponse
 	GetOpenPositions(ctx context.Context) *msg.PositionsResponse
 	ClosePosition(ctx context.Context, instrument string, units float64)

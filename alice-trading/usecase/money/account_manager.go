@@ -6,6 +6,8 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase/util"
+	"log"
+	"time"
 )
 
 // アカウント情報管理
@@ -20,10 +22,12 @@ type AccountManager struct {
 }
 
 // アカウント情報を更新し、更新後のアカウント情報を返却します。
-func (a AccountManager) UpdateAccountInformation() domain.Accounts {
+func (a AccountManager) UpdateAccountInformation() {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	// アカウント情報の最新化
-	res := a.AccountsApi.GetAccountSummary(context.Background())
-	return a.updateAccount(res)
+	if res, err := a.AccountsApi.GetAccountSummary(ctx, cancel); err == nil {
+		a.updateAccount(res)
+	}
 }
 
 // アカウント情報を取得します。
@@ -45,18 +49,26 @@ func (a AccountManager) HasPosition(instrument string) (bool, domain.Positions) 
 // ポジション情報を新規作成または更新します。
 func (a AccountManager) CreateOrUpdatePosition(instrument string) domain.Positions {
 	DB := a.DB.Connect()
-	res := a.PositionsApi.GetPosition(context.Background(), instrument)
-	position := a.convertToEntityPosition(res)
-	a.Positions.CreateOrUpdate(DB, &position)
-	return position
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	if res, err := a.PositionsApi.GetPosition(ctx, cancel, instrument); err == nil {
+		position := a.convertToEntityPosition(res)
+		a.Positions.CreateOrUpdate(DB, &position)
+		return position
+	} else {
+		log.Print("[Warning] Failed to update Position. Let Check and Fix it :", err)
+		return domain.Positions{}
+	}
 }
 
 // 指定した銘柄のポジションを更新し、返却します。
-func (a AccountManager) UpdatePositionInformation(instrument string) domain.Positions {
-	res := a.PositionsApi.GetPosition(context.Background(), instrument)
-	position := a.convertToEntityPosition(res)
-	a.updatePosition(&position)
-	return position
+func (a AccountManager) UpdatePositionInformation(instrument string) (bool, domain.Positions) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	if res, err := a.PositionsApi.GetPosition(ctx, cancel, instrument); err == nil {
+		position := a.convertToEntityPosition(res)
+		a.updatePosition(&position)
+		return true, position
+	}
+	return false, domain.Positions{}
 }
 
 // 全銘柄のポジションを更新し、返却します。
