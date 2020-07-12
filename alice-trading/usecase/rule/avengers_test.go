@@ -280,13 +280,13 @@ func TestCaptainAmerica_JudgementSetup_TradePlan(t *testing.T) {
 			captainAmerica.JudgementSetup(&candlesDay[dayCount-1], &candlesDay[dayCount], "EUR_JPY", enum.D)
 			tradeRuleStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, "EUR_JPY", enum.D)
 			if ok && captainAmerica.IsExistSecondJudgementTradePlan("EUR_JPY", enum.D) {
-				captainAmerica.JudgementTradePlan(tradeRuleStatus, &candlesDay[dayCount], "EUR_JPY", enum.D)
+				captainAmerica.JudgementTradePlanOfSwingTrade(tradeRuleStatus, &candlesDay[dayCount], "EUR_JPY", enum.D)
 			}
 			dayCount++
 		case "12:00:00":
 			tradeRuleStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, "EUR_JPY", enum.D)
 			if ok {
-				captainAmerica.JudgementTradePlan(tradeRuleStatus, &candle, "EUR_JPY", enum.D)
+				captainAmerica.JudgementTradePlanOfSwingTrade(tradeRuleStatus, &candle, "EUR_JPY", enum.D)
 			}
 		}
 	}
