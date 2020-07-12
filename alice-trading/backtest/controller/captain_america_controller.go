@@ -98,7 +98,7 @@ func (c *CaptainAmericaController) handleTradePlan(w http.ResponseWriter, r *htt
 	tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, candle.InstrumentName, candle.Granularity)
 	tradePlan := msg.TradePlanResponse{Status: 200, Result: "OK", IsOrder: false}
 	if ok {
-		isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlan(tradeStatus, &candle, instrument, granularity)
+		isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candle, instrument, granularity)
 		distance := balanceManager.GetTradingDistance(c.instrument)
 		tradePlan = msg.NewTradePlanResponse(200, "ok", units, distance, isOrder)
 		captainAmerica.CompleteTradeStatus(&captainAmericaStatus)

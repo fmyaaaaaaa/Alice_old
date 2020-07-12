@@ -198,7 +198,9 @@ func startDayTradingCaptainAmerica(instrument domain.Instruments) {
 			tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.H1)
 			if ok && captainAmerica.IsExistSecondJudgementTradePlan(instrument.Instrument, enum.H1) {
 				log.Println("Start Judgement TradePlan CaptainAmerica DayTrade Second Judge :", instrument.Instrument)
-				isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlan(tradeStatus, &candles[len(candles)-1], instrument.Instrument, enum.H1)
+				additionalCandle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.M15))[0]
+				avengers.JudgementLine(&additionalCandle)
+				isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfDayTrade(tradeStatus, &candles[len(candles)-1], &additionalCandle, instrument.Instrument, enum.H1)
 				if ok, _ := accountManager.HasPosition(instrument.Instrument); !ok && isOrder && canCreateNewOrder(instrument.Instrument) {
 					distance, trade, _ := doCreateNewOrder(instrument, units)
 					captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
@@ -207,6 +209,7 @@ func startDayTradingCaptainAmerica(instrument domain.Instruments) {
 			}
 		case <-tickPerHalfHour.C:
 			candle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.M30))[0]
+			additionalCandle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.M15))[0]
 			const TimeFormat = "04:05"
 			if candle.Candles.Time.Format(TimeFormat) == "00:00" {
 				log.Println("Start Judgement TradePlan CaptainAmerica DayTrade First Judge :", instrument.Instrument)
@@ -214,7 +217,8 @@ func startDayTradingCaptainAmerica(instrument domain.Instruments) {
 				tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.H1)
 				if ok {
 					avengers.JudgementLine(&candle)
-					isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlan(tradeStatus, &candle, instrument.Instrument, enum.H1)
+					avengers.JudgementLine(&additionalCandle)
+					isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfDayTrade(tradeStatus, &candle, &additionalCandle, instrument.Instrument, enum.H1)
 					if ok, _ := accountManager.HasPosition(instrument.Instrument); !ok && isOrder && canCreateNewOrder(instrument.Instrument) {
 						distance, trade, _ := doCreateNewOrder(instrument, units)
 						captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
@@ -254,7 +258,7 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 			tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.D)
 			if ok && captainAmerica.IsExistSecondJudgementTradePlan(instrument.Instrument, enum.D) {
 				log.Println("Start Judgement TradePlan CaptainAmerica SwingTrade Second Judge:", instrument.Instrument)
-				isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlan(tradeStatus, &candles[len(candles)-1], instrument.Instrument, enum.D)
+				isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candles[len(candles)-1], instrument.Instrument, enum.D)
 				if isOrder && canCreateNewOrder(instrument.Instrument) {
 					// スイングトレードの発注時にデイトレードのポジションを保持している場合はクローズする。
 					if ok, position := accountManager.HasPosition(instrument.Instrument); ok {
@@ -274,7 +278,7 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 				tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.D)
 				if ok {
 					avengers.JudgementLine(&candle)
-					isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlan(tradeStatus, &candle, instrument.Instrument, enum.D)
+					isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candle, instrument.Instrument, enum.D)
 					if isOrder && canCreateNewOrder(instrument.Instrument) {
 						// スイングトレードの発注時にデイトレードのポジションを保持している場合はクローズする。
 						if ok, position := accountManager.HasPosition(instrument.Instrument); ok {
@@ -370,8 +374,11 @@ func setCandles(candles []domain.BidAskCandles, instrument string, granularity e
 // デイトレード：未実現利益が500円を超えた場合は決済を行います。
 func handlePosition(position domain.Positions, instrument string, granularity enum.Granularity) {
 	if position.Units == 0 {
-		captainAmerica.ResetCaptainAmericaStatus(instrument, granularity)
-		log.Print("Reset CaptainAmericaStatus :", instrument, granularity)
+		// 線種に一致するキャプテンアメリカが売買中の場合のみリセット
+		if cas := captainAmerica.GetCaptainAmericaStatus(instrument, granularity); cas.TradeStatus {
+			captainAmerica.ResetCaptainAmericaStatus(instrument, granularity)
+			log.Print("Reset CaptainAmericaStatus :", instrument, granularity)
+		}
 	}
 	if granularity == enum.H1 && position.UnrealizedPL > config.GetInstance().Property.ProfitGainPrice {
 		accountManager.ClosePosition(instrument, position.Units)
