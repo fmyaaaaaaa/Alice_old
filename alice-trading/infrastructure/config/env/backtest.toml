@@ -1,0 +1,11 @@
+[api]
+url = "https://api-fxtest.oanda.com"
+account_id = "111-222-33333333-444"
+access_token = "token-test"
+
+[db]
+host = "test-postgres"
+port = "5432"
+user_name = "alice"
+password = "alice"
+db_name = "test_db"

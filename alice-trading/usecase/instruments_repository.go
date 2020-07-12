@@ -9,4 +9,5 @@ import (
 type InstrumentsRepository interface {
 	FindByID(db *gorm.DB, id int) (instrument domain.Instruments, err error)
 	FindAll(db *gorm.DB) (instrumentList []domain.Instruments, err error)
+	FindByInstrument(db *gorm.DB, instrumentName string) domain.Instruments
 }

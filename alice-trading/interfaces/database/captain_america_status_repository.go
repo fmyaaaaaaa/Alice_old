@@ -4,7 +4,6 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/jinzhu/gorm"
-	"log"
 )
 
 // キャプテン・アメリカのセットアップステータスRepository
@@ -34,6 +33,5 @@ func (rep CaptainAmericaStatusRepository) Reset(db *gorm.DB, instrument string, 
 		"second_judge": false,
 	}
 	tx.Model(&target).Updates(params)
-	log.Print("Reset CaptainAmericaStatus :", instrument, granularity)
 	tx.Commit()
 }

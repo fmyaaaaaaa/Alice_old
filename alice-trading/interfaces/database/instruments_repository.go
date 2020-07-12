@@ -18,3 +18,9 @@ func (rep *InstrumentsRepository) FindAll(db *gorm.DB) (instrumentList []domain.
 	db.Find(&instrumentList)
 	return instrumentList, nil
 }
+
+func (rep *InstrumentsRepository) FindByInstrument(db *gorm.DB, instrumentName string) domain.Instruments {
+	var instrument domain.Instruments
+	db.Where("instrument = ?", instrumentName).Find(&instrument)
+	return instrument
+}

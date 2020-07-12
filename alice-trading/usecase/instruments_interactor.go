@@ -43,3 +43,9 @@ func (i *InstrumentsInteractor) GetAll() (instrumentList []domain.Instruments, e
 	}
 	return result, nil
 }
+
+// 銘柄名を指定して銘柄情報を取得します。
+func (i *InstrumentsInteractor) GetInstrument(instrument string) domain.Instruments {
+	db := i.DB.Connect()
+	return i.Instruments.FindByInstrument(db, instrument)
+}
