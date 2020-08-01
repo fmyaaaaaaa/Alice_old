@@ -44,7 +44,7 @@ func (o OrdersApi) GetOrder(ctx context.Context, orderID string) *msg.OrderGetRe
 // OrderRequestに応じて新規注文を実行します。
 func (o OrdersApi) CreateNewOrder(ctx context.Context, reqParam *msg.OrderRequest) (*msg.OrderResponse, *msg.OrderErrorResponse) {
 	strPath := fmt.Sprintf("/v3/accounts/%s/orders", config.GetInstance().Api.AccountId)
-	req, err := o.newRequest(ctx, "POST", strPath, createBody(reqParam))
+	req, err := o.newRequest(ctx, "POST", strPath, createBodyOrderRequest(reqParam))
 	if err != nil {
 		log.Print(err)
 	}
@@ -73,7 +73,7 @@ func (o OrdersApi) CreateNewOrder(ctx context.Context, reqParam *msg.OrderReques
 // 引数に注文IDを指定します。
 func (o OrdersApi) CreateChangeOrder(ctx context.Context, reqParam *msg.OrderRequest, orderID string) (*msg.OrderResponse, *msg.OrderErrorResponse) {
 	strPath := fmt.Sprintf("/v3/accounts/%s/orders/%s", config.GetInstance().Api.AccountId, orderID)
-	req, err := o.newRequest(ctx, "PUT", strPath, createBody(reqParam))
+	req, err := o.newRequest(ctx, "PUT", strPath, createBodyOrderRequest(reqParam))
 	if err != nil {
 		log.Print(err)
 	}
@@ -98,7 +98,8 @@ func (o OrdersApi) CreateChangeOrder(ctx context.Context, reqParam *msg.OrderReq
 	}
 }
 
-func createBody(reqParam *msg.OrderRequest) *bytes.Buffer {
+// OrderRequestのBodyを生成します。
+func createBodyOrderRequest(reqParam *msg.OrderRequest) *bytes.Buffer {
 	jsonByte, err := json.Marshal(reqParam)
 	if err != nil {
 		log.Println("fail to parse json ", err)

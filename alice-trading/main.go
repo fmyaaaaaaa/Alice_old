@@ -56,6 +56,7 @@ func init() {
 		Trades:          &database.TradesRepository{},
 		OrderTradeBinds: &database.OrderTradeBindsRepository{},
 		OrdersApi:       oanda.NewOrdersApi(),
+		TradesApi:       oanda.NewTradeApi(),
 	}
 	avengers = rule.Avengers{
 		DB:                &DBRepository,
@@ -105,7 +106,6 @@ func main() {
 		controller.StartServer()
 		return
 	}
-
 	data := cacheManager.Get("instruments")
 	instruments := data.([]domain.Instruments)
 
@@ -202,7 +202,7 @@ func startDayTradingCaptainAmerica(instrument domain.Instruments) {
 				avengers.JudgementLine(&additionalCandle)
 				isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfDayTrade(tradeStatus, &candles[len(candles)-1], &additionalCandle, instrument.Instrument, enum.H1)
 				if ok, _ := accountManager.HasPosition(instrument.Instrument); !ok && isOrder && canCreateNewOrder(instrument.Instrument) {
-					distance, trade, _ := doCreateNewOrder(instrument, units)
+					distance, trade, _ := doCreateNewOrderStopLimit(instrument, units)
 					captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
 					balanceManager.RegisterFirstBalanceManagements(instrument, trade, enum.CaptainAmerica, distance)
 				}
@@ -220,7 +220,7 @@ func startDayTradingCaptainAmerica(instrument domain.Instruments) {
 					avengers.JudgementLine(&additionalCandle)
 					isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfDayTrade(tradeStatus, &candle, &additionalCandle, instrument.Instrument, enum.H1)
 					if ok, _ := accountManager.HasPosition(instrument.Instrument); !ok && isOrder && canCreateNewOrder(instrument.Instrument) {
-						distance, trade, _ := doCreateNewOrder(instrument, units)
+						distance, trade, _ := doCreateNewOrderStopLimit(instrument, units)
 						captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
 						balanceManager.RegisterFirstBalanceManagements(instrument, trade, enum.CaptainAmerica, distance)
 					}
@@ -244,7 +244,7 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 		case <-tickPerOneMin.C:
 			if ok, _ := accountManager.HasPosition(instrument.Instrument); ok {
 				if ok, position := accountManager.UpdatePositionInformation(instrument.Instrument); ok {
-					handlePosition(position, instrument.Instrument, enum.D)
+					handlePositionForSwingTrade(position, instrument.Instrument, enum.D)
 					if ok, currentAccountLevel, tradeRule := balanceManager.JudgementProfit(accountManager.GetPosition(instrument.Instrument)); ok {
 						distance, trade, position := doCreateNewOrder(instrument, strconv.FormatFloat(accountManager.GetPosition(instrument.Instrument).Units, 'f', 0, 64))
 						balanceManager.RegisterNextBalanceManagements(instrument, trade, position, tradeRule, currentAccountLevel, distance)
@@ -264,7 +264,7 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 					if ok, position := accountManager.HasPosition(instrument.Instrument); ok {
 						accountManager.ClosePosition(instrument.Instrument, position.Units)
 					}
-					distance, trade, _ := doCreateNewOrder(instrument, units)
+					distance, trade, _ := doCreateNewOrderStopLimit(instrument, units)
 					captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
 					balanceManager.RegisterFirstBalanceManagements(instrument, trade, enum.CaptainAmerica, distance)
 				}
@@ -272,7 +272,7 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 		case <-tickPerHalfDay.C:
 			candle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.H12))[0]
 			const TimeFormat = "15:04:05"
-			if candle.Candles.Time.Format(TimeFormat) == "00:00:00" {
+			if candle.Candles.Time.Format(TimeFormat) != "21:00:00" {
 				log.Println("Start Judgement TradePlan CaptainAmerica SwingTrade First Judge:", instrument.Instrument)
 				// セットアップの検証時には足データの足種を判定しているため
 				tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.D)
@@ -284,7 +284,7 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 						if ok, position := accountManager.HasPosition(instrument.Instrument); ok {
 							accountManager.ClosePosition(instrument.Instrument, position.Units)
 						}
-						distance, trade, _ := doCreateNewOrder(instrument, units)
+						distance, trade, _ := doCreateNewOrderStopLimit(instrument, units)
 						captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
 						balanceManager.RegisterFirstBalanceManagements(instrument, trade, enum.CaptainAmerica, distance)
 					}
@@ -380,8 +380,25 @@ func handlePosition(position domain.Positions, instrument string, granularity en
 			log.Print("Reset CaptainAmericaStatus :", instrument, granularity)
 		}
 	}
-	if granularity == enum.H1 && position.UnrealizedPL > config.GetInstance().Property.ProfitGainPrice {
+	if granularity == enum.M30 && position.UnrealizedPL > config.GetInstance().Property.ProfitGainPrice {
 		accountManager.ClosePosition(instrument, position.Units)
+	}
+}
+
+// ポジションの状態と、売買ルールのタイプに応じた処理を行います。
+// 共通　　　　　　；ポジションが0の場合はキャプテンアメリカのセットアップ・取引ステータスをリセットします。
+// スイングトレード：未実現利益が3000円を超えたらトレーリングストップを設定します。
+func handlePositionForSwingTrade(position domain.Positions, instrument string, granularity enum.Granularity) {
+	if position.Units == 0 {
+		// 線種に一致するキャプテンアメリカが売買中の場合のみリセット
+		if cas := captainAmerica.GetCaptainAmericaStatus(instrument, granularity); cas.TradeStatus {
+			captainAmerica.ResetCaptainAmericaStatus(instrument, granularity)
+			log.Print("Reset CaptainAmericaStatus :", instrument, granularity)
+		}
+	} else {
+		if position.UnrealizedPL > 10000 {
+			orderManager.DoChangeOrder(instrument)
+		}
 	}
 }
 
@@ -399,7 +416,16 @@ func doSetupCaptainAmerica(candle domain.BidAskCandles, instrument domain.Instru
 // 資金管理レコードの生成に必要な情報を返却します。
 func doCreateNewOrder(instrument domain.Instruments, units string) (float64, *domain.Trades, domain.Positions) {
 	distance := balanceManager.GetTradingDistance(instrument)
-	trade := orderManager.DoNewMarketOrder(instrument.Instrument, units, strconv.FormatFloat(distance, 'f', 5, 64))
+	trade := orderManager.DoNewMarketOrderTrailingStop(instrument.Instrument, units, strconv.FormatFloat(distance, 'f', 5, 64))
+	position := accountManager.CreateOrUpdatePosition(instrument.Instrument)
+	log.Print("Complete New Order :", instrument.Instrument)
+	return distance, trade, position
+}
+
+// マーケット注文とともに逆指値を発注します。
+func doCreateNewOrderStopLimit(instrument domain.Instruments, units string) (float64, *domain.Trades, domain.Positions) {
+	distance := balanceManager.GetTradingDistance(instrument)
+	trade := orderManager.DoNewMarketOrderStopLimit(instrument.Instrument, units, strconv.FormatFloat(distance, 'f', 5, 64))
 	position := accountManager.CreateOrUpdatePosition(instrument.Instrument)
 	log.Print("Complete New Order :", instrument.Instrument)
 	return distance, trade, position

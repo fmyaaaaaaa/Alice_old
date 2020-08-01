@@ -8,4 +8,5 @@ import (
 // 取引のAPI
 type TradesApi interface {
 	GetTrades(ctx context.Context) *msg.TradesResponse
+	CreateChangeTrade(ctx context.Context, reqParam *msg.TradesRequest, tradeID string) *msg.TradesChangeResponse
 }

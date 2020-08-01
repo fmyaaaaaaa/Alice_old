@@ -15,6 +15,7 @@ type CommonOrderResponse struct {
 	Type              string    `json:"type"`
 	TradeID           string    `json:"tradeId"`
 	Distance          string    `json:"distance"`
+	Price             string    `json:"price"`
 	TimeInForce       string    `json:"timeInForce"`
 	TriggerCondition  string    `json:"triggerCondition"`
 	State             string    `json:"state"`
