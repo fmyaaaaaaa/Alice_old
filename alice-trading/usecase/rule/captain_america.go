@@ -1,6 +1,7 @@
 package rule
 
 import (
+	"flag"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
@@ -41,7 +42,7 @@ func (c CaptainAmerica) JudgementSetup(lastCandle, currentCandle *domain.BidAskC
 func (c CaptainAmerica) JudgementTradePlanOfSwingTrade(tradeRuleStatus domain.TradeRuleStatus, currentCandle *domain.BidAskCandles, instrument string, granularity enum.Granularity) (bool, string, domain.CaptainAmericaStatus) {
 	// 注文数量
 	units := 0
-	if tradeRuleStatus.CandleTime.Equal(currentCandle.Candles.Time) {
+	if flag.Arg(0) == "backTest" && tradeRuleStatus.CandleTime.Equal(currentCandle.Candles.Time) {
 		return false, strconv.Itoa(units), domain.CaptainAmericaStatus{}
 	}
 
