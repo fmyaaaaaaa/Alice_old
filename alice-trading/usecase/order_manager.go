@@ -4,9 +4,11 @@ import (
 	"context"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase/util"
 	"log"
+	"strconv"
 )
 
 // 注文管理
@@ -16,13 +18,13 @@ type OrderManager struct {
 	Trades          TradesRepository
 	OrderTradeBinds OrderTradeBindsRepository
 	OrdersApi       OrdersApi
+	TradesApi       TradesApi
 }
 
-// TODO:資金管理で利用する情報をreturnするよう変更する
 // 新規Market注文を発注します。
 // 発注時にトレーリングストップを設定します。
 // 発注結果から新規注文、トレーリング注文、取引情報を保存します。
-func (o OrderManager) DoNewMarketOrder(instrument, units, distance string) *domain.Trades {
+func (o OrderManager) DoNewMarketOrderTrailingStop(instrument, units, distance string) *domain.Trades {
 	// トレーリングストップ
 	trailing := &msg.TrailingStopLossDetails{
 		Distance:    distance,
@@ -48,6 +50,45 @@ func (o OrderManager) DoNewMarketOrder(instrument, units, distance string) *doma
 	o.CreateBind(o.convertToEntityBind(createRes))
 
 	return trade
+}
+
+// 新規Market注文を発注します。
+// 発注時にストップリミットを設定します。
+// 発注結果から新規注文、ストップリミット注文、取引情報を保存します。
+func (o OrderManager) DoNewMarketOrderStopLimit(instrument, units, distance string) *domain.Trades {
+	// ストップリミット
+	stopLoss := &msg.StopLossDetails{
+		Distance:    distance,
+		TimeInForce: enum.Gtc,
+	}
+	// 注文リクエスト実行
+	reqParam := msg.NewMarketOrderRequest(instrument, units, "", enum.DefaultOrderPositionFIll, nil, stopLoss, nil)
+	createRes, errRes := o.OrdersApi.CreateNewOrder(context.Background(), reqParam)
+	if errRes != nil {
+		log.Print("fail to new Order", errRes.ErrorCode, errRes.ErrorMessage)
+		return nil
+	}
+	o.CreateOrder(o.convertToEntityCreateOrder(createRes, enum.Fok, enum.Market, distance))
+	trade := o.convertToEntityTrade(createRes)
+	getRes := o.OrdersApi.GetOrder(context.Background(), createRes.LastTransactionID)
+	o.CreateOrder(o.convertToEntityGetOrderForStopLimit(getRes, instrument, units))
+	o.CreateBind(o.convertToEntityBind(createRes))
+	return trade
+}
+
+// 逆指値注文をトレーリングストップ注文に変更します。
+func (o OrderManager) DoChangeOrder(instrument string) bool {
+	db := o.DB.Connect()
+	distance := strconv.FormatFloat(config.GetInstance().Property.ProfitGainPrice, 'f', 5, 64)
+	order, _ := o.Orders.FindLastByInstrumentAndOrder(db, instrument, enum.StopLoss)
+	tradeID := strconv.Itoa(order.OrderID - 1)
+	reqParam := msg.NewTradeRequest(distance, enum.Gtc)
+	createRes := o.TradesApi.CreateChangeTrade(context.Background(), reqParam, tradeID)
+	if createRes.ErrorCode != "" {
+		log.Print("fail to change Order: ", createRes.ErrorCode, createRes.ErrorMessage)
+		return false
+	}
+	return true
 }
 
 // 引数の注文情報を保存します。
@@ -114,6 +155,19 @@ func (o OrderManager) convertToEntityGetOrder(res *msg.OrderGetResponse, instrum
 		Type:        enum.Order(res.Order.Type),
 		Price:       util.ParseFloat(res.Order.TrailingStopValue),
 		Distance:    util.ParseFloat(res.Order.Distance),
+		Time:        res.Order.CreateTime,
+		TimeInForce: enum.TimeInForce(res.Order.TimeInForce),
+	}
+}
+
+// FIXME: 暫定対応
+func (o OrderManager) convertToEntityGetOrderForStopLimit(res *msg.OrderGetResponse, instrument, units string) *domain.Orders {
+	return &domain.Orders{
+		OrderID:     util.ParseInt(res.Order.ID),
+		Instrument:  instrument,
+		Units:       util.ParseFloat(units),
+		Type:        enum.Order(res.Order.Type),
+		Price:       util.ParseFloat(res.Order.Price),
 		Time:        res.Order.CreateTime,
 		TimeInForce: enum.TimeInForce(res.Order.TimeInForce),
 	}

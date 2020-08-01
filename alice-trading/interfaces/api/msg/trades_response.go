@@ -1,6 +1,7 @@
 package msg
 
 import (
+	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"time"
 )
 
@@ -44,4 +45,20 @@ type TrailingStopLossOrder struct {
 	FillingTransactionID string    `json:"fillingTransactionID"`
 	FilledTime           time.Time `json:"filledTime"`
 	TradeOpenedID        string    `json:"tradeOpenedID"`
+}
+
+type TradesChangeResponse struct {
+	TrailingStopLossOrderTransaction TrailingStopLossOrderTransaction `json:"trailingStopLossOrderTransaction"`
+	ErrorCode                        string                           `json:"errorCode"`
+	ErrorMessage                     string                           `json:"errorMessage"`
+}
+
+type TrailingStopLossOrderTransaction struct {
+	Id          string           `json:"id"`
+	Time        time.Time        `json:"time"`
+	AccountID   string           `json:"accountId"`
+	Type        Transaction      `json:"type"`
+	TimeInForce enum.TimeInForce `json:"timeInForce"`
+	TradeID     string           `json:"tradeId"`
+	Distance    string           `json:"distance"`
 }

@@ -41,11 +41,10 @@ func (c CaptainAmerica) JudgementSetup(lastCandle, currentCandle *domain.BidAskC
 func (c CaptainAmerica) JudgementTradePlanOfSwingTrade(tradeRuleStatus domain.TradeRuleStatus, currentCandle *domain.BidAskCandles, instrument string, granularity enum.Granularity) (bool, string, domain.CaptainAmericaStatus) {
 	// 注文数量
 	units := 0
-	// セットアップと同一の足データの場合は処理をスキップ。
-	// トレード計画の判定はセットアップの次回足データを対象とするため。
 	if tradeRuleStatus.CandleTime.Equal(currentCandle.Candles.Time) {
 		return false, strconv.Itoa(units), domain.CaptainAmericaStatus{}
 	}
+
 	// セットアップを取得
 	captainAmericaStatus := c.GetCaptainAmericaStatus(instrument, granularity)
 	tradePlan := false

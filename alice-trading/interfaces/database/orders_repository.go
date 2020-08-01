@@ -21,6 +21,12 @@ func (rep OrdersRepository) FindByID(db *gorm.DB, id int) (domain.Orders, error)
 	return result, nil
 }
 
+func (rep OrdersRepository) FindLastByInstrumentAndOrder(db *gorm.DB, instrument string, order enum.Order) (domain.Orders, error) {
+	var result domain.Orders
+	db.Where("instrument = ? AND type = ?", instrument, order).Last(&result)
+	return result, nil
+}
+
 func (rep OrdersRepository) FindByType(db *gorm.DB, orderType enum.Order) ([]domain.Orders, error) {
 	var result []domain.Orders
 	db.Where("type = ?", orderType).Find(&result)
