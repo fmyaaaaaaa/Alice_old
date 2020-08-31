@@ -242,51 +242,49 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 	for {
 		select {
 		case <-tickPerOneMin.C:
-			if ok, _ := accountManager.HasPosition(instrument.Instrument); ok {
-				if ok, position := accountManager.UpdatePositionInformation(instrument.Instrument); ok {
-					handlePositionForSwingTrade(position, instrument.Instrument, enum.D)
-					if ok, currentAccountLevel, tradeRule := balanceManager.JudgementProfit(accountManager.GetPosition(instrument.Instrument)); ok {
-						distance, trade, position := doCreateNewOrder(instrument, strconv.FormatFloat(accountManager.GetPosition(instrument.Instrument).Units, 'f', 0, 64))
-						balanceManager.RegisterNextBalanceManagements(instrument, trade, position, tradeRule, currentAccountLevel, distance)
+			if weekDays := avengers.IsWeekdays(); weekDays {
+				if ok, _ := accountManager.HasPosition(instrument.Instrument); ok {
+					if ok, position := accountManager.UpdatePositionInformation(instrument.Instrument); ok {
+						handlePositionForSwingTrade(position, instrument.Instrument, enum.D)
+						if ok, currentAccountLevel, tradeRule := balanceManager.JudgementProfit(accountManager.GetPosition(instrument.Instrument)); ok {
+							distance, trade, position := doCreateNewOrder(instrument, strconv.FormatFloat(accountManager.GetPosition(instrument.Instrument).Units, 'f', 0, 64))
+							balanceManager.RegisterNextBalanceManagements(instrument, trade, position, tradeRule, currentAccountLevel, distance)
+						}
 					}
 				}
 			}
 		case <-tickPerDay.C:
-			log.Println("Start Judgement Setup CaptainAmerica SwingTrade :", instrument.Instrument)
-			candle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.D))[0]
-			candles := doSetupCaptainAmerica(candle, instrument, enum.D)
-			tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.D)
-			if ok && captainAmerica.IsExistSecondJudgementTradePlan(instrument.Instrument, enum.D) {
-				log.Println("Start Judgement TradePlan CaptainAmerica SwingTrade Second Judge:", instrument.Instrument)
-				isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candles[len(candles)-1], instrument.Instrument, enum.D)
-				if isOrder && canCreateNewOrder(instrument.Instrument) {
-					// スイングトレードの発注時にデイトレードのポジションを保持している場合はクローズする。
-					if ok, position := accountManager.HasPosition(instrument.Instrument); ok {
-						accountManager.ClosePosition(instrument.Instrument, position.Units)
-					}
-					distance, trade, _ := doCreateNewOrderStopLimit(instrument, units)
-					captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
-					balanceManager.RegisterFirstBalanceManagements(instrument, trade, enum.CaptainAmerica, distance)
-				}
-			}
-		case <-tickPerHalfDay.C:
-			candle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.H12))[0]
-			const TimeFormat = "15:04:05"
-			if candle.Candles.Time.Format(TimeFormat) != "21:00:00" {
-				log.Println("Start Judgement TradePlan CaptainAmerica SwingTrade First Judge:", instrument.Instrument)
-				// セットアップの検証時には足データの足種を判定しているため
+			if weekDays := avengers.IsWeekdays(); weekDays {
+				log.Println("Start Judgement Setup CaptainAmerica SwingTrade :", instrument.Instrument)
+				candle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.D))[0]
+				candles := doSetupCaptainAmerica(candle, instrument, enum.D)
 				tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.D)
-				if ok {
-					avengers.JudgementLine(&candle)
-					isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candle, instrument.Instrument, enum.D)
+				if ok && captainAmerica.IsExistSecondJudgementTradePlan(instrument.Instrument, enum.D) {
+					log.Println("Start Judgement TradePlan CaptainAmerica SwingTrade Second Judge:", instrument.Instrument)
+					isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candles[len(candles)-1], instrument.Instrument, enum.D)
 					if isOrder && canCreateNewOrder(instrument.Instrument) {
-						// スイングトレードの発注時にデイトレードのポジションを保持している場合はクローズする。
-						if ok, position := accountManager.HasPosition(instrument.Instrument); ok {
-							accountManager.ClosePosition(instrument.Instrument, position.Units)
-						}
 						distance, trade, _ := doCreateNewOrderStopLimit(instrument, units)
 						captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
 						balanceManager.RegisterFirstBalanceManagements(instrument, trade, enum.CaptainAmerica, distance)
+					}
+				}
+			}
+		case <-tickPerHalfDay.C:
+			if weekDays := avengers.IsWeekdays(); weekDays {
+				candle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.H12))[0]
+				const TimeFormat = "15:04:05"
+				if candle.Candles.Time.Format(TimeFormat) == "21:00:00" || candle.Candles.Time.Format(TimeFormat) == "22:00:00" {
+					log.Println("Start Judgement TradePlan CaptainAmerica SwingTrade First Judge:", instrument.Instrument)
+					// セットアップの検証時には足データの足種を判定しているため
+					tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.D)
+					if ok {
+						avengers.JudgementLine(&candle)
+						isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candle, instrument.Instrument, enum.D)
+						if isOrder && canCreateNewOrder(instrument.Instrument) {
+							distance, trade, _ := doCreateNewOrderStopLimit(instrument, units)
+							captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
+							balanceManager.RegisterFirstBalanceManagements(instrument, trade, enum.CaptainAmerica, distance)
+						}
 					}
 				}
 			}
@@ -310,7 +308,9 @@ func startWatchAccountInformation() {
 	for {
 		select {
 		case <-tickPerOneMin.C:
-			accountManager.UpdateAccountInformation()
+			if weekDays := avengers.IsWeekdays(); weekDays {
+				accountManager.UpdateAccountInformation()
+			}
 		}
 	}
 }
@@ -387,7 +387,6 @@ func handlePosition(position domain.Positions, instrument string, granularity en
 
 // ポジションの状態と、売買ルールのタイプに応じた処理を行います。
 // 共通　　　　　　；ポジションが0の場合はキャプテンアメリカのセットアップ・取引ステータスをリセットします。
-// スイングトレード：未実現利益が3000円を超えたらトレーリングストップを設定します。
 func handlePositionForSwingTrade(position domain.Positions, instrument string, granularity enum.Granularity) {
 	if position.Units == 0 {
 		// 線種に一致するキャプテンアメリカが売買中の場合のみリセット
@@ -395,10 +394,9 @@ func handlePositionForSwingTrade(position domain.Positions, instrument string, g
 			captainAmerica.ResetCaptainAmericaStatus(instrument, granularity)
 			log.Print("Reset CaptainAmericaStatus :", instrument, granularity)
 		}
-	} else {
-		if position.UnrealizedPL > 10000 {
-			orderManager.DoChangeOrder(instrument)
-		}
+	}
+	if position.UnrealizedPL > config.GetInstance().Property.ProfitGainPrice {
+		orderManager.DoChangeOrder(instrument)
 	}
 }
 

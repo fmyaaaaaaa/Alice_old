@@ -4,6 +4,7 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase"
+	"time"
 )
 
 // 売買ルールに共通の処理を管理
@@ -117,6 +118,12 @@ func (a Avengers) handleHighLowPrice(candle *domain.BidAskCandles, highLowPrice 
 	if len(params) != 0 {
 		a.UpdateHighLowPrice(&highLowPrice, params)
 	}
+}
+
+// 実行時の曜日が平日かどうかを判定します。
+func (a Avengers) IsWeekdays() bool {
+	today := time.Now()
+	return !(today.Weekday() == time.Saturday || today.Weekday() == time.Sunday)
 }
 
 // TrendStatusを作成します。
