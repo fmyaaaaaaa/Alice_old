@@ -1,13 +1,13 @@
 package rule
 
 import (
-	"flag"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase"
 	"log"
 	"strconv"
+	"time"
 )
 
 type CaptainAmerica struct {
@@ -32,7 +32,7 @@ func (c CaptainAmerica) JudgementSetup(lastCandle, currentCandle *domain.BidAskC
 	if setUp {
 		captainAmericaStatus := domain.NewCaptainAmericaStatus(instrument, granularity, currentCandle.Line, currentCandle.GetCloseMid(), true, false)
 		c.CreateOrUpdateCaptainAmericaStatus(captainAmericaStatus)
-		tradeRuleStatus := domain.NewTradeRuleStatus(enum.CaptainAmerica, instrument, granularity, currentCandle.Candles.Time)
+		tradeRuleStatus := domain.NewTradeRuleStatus(enum.CaptainAmerica, instrument, granularity, currentCandle.Candles.Time.Add(12*time.Hour))
 		c.CreateOrUpdateTradeRuleStatus(tradeRuleStatus)
 		log.Println("CaptainAmerica setup happened ", instrument, granularity)
 	}
@@ -42,7 +42,7 @@ func (c CaptainAmerica) JudgementSetup(lastCandle, currentCandle *domain.BidAskC
 func (c CaptainAmerica) JudgementTradePlanOfSwingTrade(tradeRuleStatus domain.TradeRuleStatus, currentCandle *domain.BidAskCandles, instrument string, granularity enum.Granularity) (bool, string, domain.CaptainAmericaStatus) {
 	// 注文数量
 	units := 0
-	if flag.Arg(0) == "backTest" && tradeRuleStatus.CandleTime.Equal(currentCandle.Candles.Time) {
+	if tradeRuleStatus.CandleTime.Equal(currentCandle.Candles.Time) {
 		return false, strconv.Itoa(units), domain.CaptainAmericaStatus{}
 	}
 

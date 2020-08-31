@@ -10,7 +10,6 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase/dto"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase/util"
 	"log"
-	"time"
 )
 
 // 足データのユースケース
@@ -90,7 +89,6 @@ func (c CandlesInteractor) Delete(candle *domain.BidAskCandles) {
 
 // 初期化時のみの利用を想定しています。また、最後の足データは返却しません。
 func (c CandlesInteractor) convertToInitialEntity(res *msg.CandlesBidAskResponse, instrumentName string, granularity enum.Granularity) []domain.BidAskCandles {
-	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	var result []domain.BidAskCandles
 	for i, candle := range res.Candles {
 		if i == len(res.Candles)-1 {
@@ -112,7 +110,7 @@ func (c CandlesInteractor) convertToInitialEntity(res *msg.CandlesBidAskResponse
 				Low:   util.ParseFloat(candle.Ask.L),
 			},
 			Candles: domain.Candles{
-				Time:   candle.Time.In(jst),
+				Time:   candle.Time,
 				Volume: util.ParseFloat(candle.Volume.String()),
 			},
 		}
