@@ -236,8 +236,8 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 	tickPerOneMin := time.NewTicker(1 * time.Minute)
 	// 24時間ごとに実行する
 	tickPerDay := time.NewTicker(24 * time.Hour)
-	// 12時間ごとに実行する（売買ルールでセットアップ発生時のみ処理を行う）
-	tickPerHalfDay := time.NewTicker(12 * time.Hour)
+	// 2時間ごとに実行する（売買ルールでセットアップ発生時のみ処理を行う）
+	tickPerTwoHour := time.NewTicker(2 * time.Hour)
 
 	for {
 		select {
@@ -261,7 +261,7 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 				tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.D)
 				if ok && captainAmerica.IsExistSecondJudgementTradePlan(instrument.Instrument, enum.D) {
 					log.Println("Start Judgement TradePlan CaptainAmerica SwingTrade Second Judge:", instrument.Instrument)
-					isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candles[len(candles)-1], instrument.Instrument, enum.D)
+					isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candles[len(candles)-1], instrument.Instrument, enum.D, &candle) // 不要な処理 -> 後で削除検討
 					if isOrder && canCreateNewOrder(instrument.Instrument) {
 						distance, trade, _ := doCreateNewOrderStopLimit(instrument, units)
 						captainAmerica.CompleteTradeStatus(&captainAmericaStatus)
@@ -269,17 +269,19 @@ func startSwingTradingCaptainAmerica(instrument domain.Instruments) {
 					}
 				}
 			}
-		case <-tickPerHalfDay.C:
+		case <-tickPerTwoHour.C:
 			if weekDays := avengers.IsWeekdays(); weekDays {
-				candle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.H12))[0]
+				candle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.H1))[0]
 				const TimeFormat = "15:04:05"
-				if candle.Candles.Time.Format(TimeFormat) == "21:00:00" || candle.Candles.Time.Format(TimeFormat) == "22:00:00" {
+				if candle.Candles.Time.Format(TimeFormat) == "19:00:00" || candle.Candles.Time.Format(TimeFormat) == "20:00:00" { // 夏時間:16時 冬時間:17時
 					log.Println("Start Judgement TradePlan CaptainAmerica SwingTrade First Judge:", instrument.Instrument)
 					// セットアップの検証時には足データの足種を判定しているため
 					tradeStatus, ok := avengers.IsExistSetUpTradeRule(enum.CaptainAmerica, instrument.Instrument, enum.D)
 					if ok {
 						avengers.JudgementLine(&candle)
-						isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candle, instrument.Instrument, enum.D)
+						judgementCandle := candlesInteractor.GetCandle(dto.NewCandlesGetDto(instrument.Instrument, 2, enum.H4))[0]
+						avengers.JudgementLine(&judgementCandle)
+						isOrder, units, captainAmericaStatus := captainAmerica.JudgementTradePlanOfSwingTrade(tradeStatus, &candle, instrument.Instrument, enum.D, &judgementCandle)
 						if isOrder && canCreateNewOrder(instrument.Instrument) {
 							distance, trade, _ := doCreateNewOrderStopLimit(instrument, units)
 							captainAmerica.CompleteTradeStatus(&captainAmericaStatus)

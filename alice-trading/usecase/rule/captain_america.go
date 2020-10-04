@@ -39,7 +39,7 @@ func (c CaptainAmerica) JudgementSetup(lastCandle, currentCandle *domain.BidAskC
 }
 
 // 足データをもとにスイングトレードのトレード計画を判定します。
-func (c CaptainAmerica) JudgementTradePlanOfSwingTrade(tradeRuleStatus domain.TradeRuleStatus, currentCandle *domain.BidAskCandles, instrument string, granularity enum.Granularity) (bool, string, domain.CaptainAmericaStatus) {
+func (c CaptainAmerica) JudgementTradePlanOfSwingTrade(tradeRuleStatus domain.TradeRuleStatus, currentCandle *domain.BidAskCandles, instrument string, granularity enum.Granularity, judgementCandle *domain.BidAskCandles) (bool, string, domain.CaptainAmericaStatus) {
 	// 注文数量
 	units := 0
 	if tradeRuleStatus.CandleTime.Equal(currentCandle.Candles.Time) {
@@ -51,13 +51,13 @@ func (c CaptainAmerica) JudgementTradePlanOfSwingTrade(tradeRuleStatus domain.Tr
 	tradePlan := false
 	switch captainAmericaStatus.Line {
 	case enum.Positive:
-		if captainAmericaStatus.SetupPrice <= currentCandle.GetCloseMid() && currentCandle.Line == enum.Positive {
+		if captainAmericaStatus.SetupPrice <= currentCandle.GetCloseMid() && judgementCandle.Line == enum.Positive {
 			tradePlan = true
 			units = config.GetInstance().Property.OrderLot
 			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
 		}
 	case enum.Negative:
-		if captainAmericaStatus.SetupPrice >= currentCandle.GetCloseMid() && currentCandle.Line == enum.Negative {
+		if captainAmericaStatus.SetupPrice >= currentCandle.GetCloseMid() && judgementCandle.Line == enum.Negative {
 			tradePlan = true
 			units = -config.GetInstance().Property.OrderLot
 			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
