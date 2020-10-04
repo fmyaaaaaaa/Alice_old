@@ -64,9 +64,10 @@ func (c CaptainAmerica) JudgementTradePlanOfSwingTrade(tradeRuleStatus domain.Tr
 		}
 	}
 	// トレード計画の結果に応じて、売買ルールの状態を変更する。
-	if tradePlan || captainAmericaStatus.SecondJudge {
-		c.CompleteTradeRuleStatus(&tradeRuleStatus)
-	}
+	// Second Judgeを実施しないように修正するため、判定が完了したら、セットアップ状況をリセットする。
+	//if tradePlan || captainAmericaStatus.SecondJudge {
+	c.CompleteTradeRuleStatus(&tradeRuleStatus)
+	//}
 	c.HandleCaptainAmericaStatus(&captainAmericaStatus, tradePlan)
 	return tradePlan, strconv.Itoa(units), captainAmericaStatus
 }
@@ -168,17 +169,17 @@ func (c CaptainAmerica) HandleCaptainAmericaStatus(captainAmericaStatus *domain.
 	DB := c.DB.Connect()
 	params := make(map[string]interface{})
 	// セットアップ済みの売買ルールを完了、取引ステータスを取引中に更新する。
-	if tradePlan {
-		params["setup_status"] = false
-		params["second_judge"] = false
-	} else {
-		if captainAmericaStatus.SecondJudge {
-			params["second_judge"] = false
-			params["setup_status"] = false
-		} else {
-			params["second_judge"] = true
-		}
-	}
+	//if tradePlan {
+	params["setup_status"] = false
+	params["second_judge"] = false
+	//} else {
+	//	if captainAmericaStatus.SecondJudge {
+	//		params["second_judge"] = false
+	//		params["setup_status"] = false
+	//	} else {
+	//		params["second_judge"] = false
+	//	}
+	//}
 	c.CaptainAmericaStatus.Update(DB, captainAmericaStatus, params)
 }
 

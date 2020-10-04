@@ -93,6 +93,11 @@ func (o OrderManager) DoChangeOrder(instrument string) bool {
 
 // 引数の注文情報を保存します。
 func (o OrderManager) CreateOrder(order *domain.Orders) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Print("Recovered from ", r)
+		}
+	}()
 	db := o.DB.Connect()
 	o.Orders.Create(db, order)
 }
