@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/strings"
 	"log"
@@ -28,15 +29,15 @@ func (o OrdersApi) GetOrder(ctx context.Context, orderID string) *msg.OrderGetRe
 	strPath := fmt.Sprintf("/v3/accounts/%s/orders/%s", config.GetInstance().Api.AccountId, orderID)
 	req, err := o.newRequest(ctx, "GET", strPath, nil)
 	if err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	res, err := o.HTTPClient.Do(req)
 	if err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	var order msg.OrderGetResponse
 	if err := o.decodeBody(res, &order); err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	return &order
 }
@@ -46,24 +47,24 @@ func (o OrdersApi) CreateNewOrder(ctx context.Context, reqParam *msg.OrderReques
 	strPath := fmt.Sprintf("/v3/accounts/%s/orders", config.GetInstance().Api.AccountId)
 	req, err := o.newRequest(ctx, "POST", strPath, createBodyOrderRequest(reqParam))
 	if err != nil {
-		log.Print(err)
+		logger.LogManager().Error(err)
 	}
 
 	res, err := o.HTTPClient.Do(req)
 	if err != nil {
-		log.Print(err)
+		logger.LogManager().Error(err)
 	}
 
 	if res.StatusCode == http.StatusCreated {
 		var orderResponse msg.OrderResponse
 		if err := o.decodeBody(res, &orderResponse); err != nil {
-			log.Println(err)
+			logger.LogManager().Error(err)
 		}
 		return &orderResponse, nil
 	} else {
 		var orderErrorResponse msg.OrderErrorResponse
 		if err := o.decodeBody(res, &orderErrorResponse); err != nil {
-			log.Println(err)
+			logger.LogManager().Error(err)
 		}
 		return nil, &orderErrorResponse
 	}
@@ -86,13 +87,13 @@ func (o OrdersApi) CreateChangeOrder(ctx context.Context, reqParam *msg.OrderReq
 	if res.StatusCode == http.StatusCreated {
 		var orderResponse msg.OrderResponse
 		if err := o.decodeBody(res, &orderResponse); err != nil {
-			log.Println(err)
+			logger.LogManager().Error(err)
 		}
 		return &orderResponse, nil
 	} else {
 		var orderErrorResponse msg.OrderErrorResponse
 		if err := o.decodeBody(res, &orderErrorResponse); err != nil {
-			log.Println(err)
+			logger.LogManager().Error(err)
 		}
 		return nil, &orderErrorResponse
 	}

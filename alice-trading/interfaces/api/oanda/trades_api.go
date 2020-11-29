@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/strings"
 	"log"
@@ -28,15 +29,15 @@ func (t TradesApi) GetTrades(ctx context.Context) *msg.TradesResponse {
 	strPath := fmt.Sprintf("/v3/accounts/%s/trades", config.GetInstance().Api.AccountId)
 	req, err := t.newRequest(ctx, "GET", strPath, nil)
 	if err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	res, err := t.HTTPClient.Do(req)
 	if err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	var trade msg.TradesResponse
 	if err := t.decodeBody(res, &trade); err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	return &trade
 }
@@ -56,7 +57,7 @@ func (t TradesApi) CreateChangeTrade(ctx context.Context, reqParam *msg.TradesRe
 
 	var tradeChangeResponse msg.TradesChangeResponse
 	if err := t.decodeBody(res, &tradeChangeResponse); err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	return &tradeChangeResponse
 }

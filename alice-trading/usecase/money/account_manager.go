@@ -3,10 +3,10 @@ package money
 import (
 	"context"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase/util"
-	"log"
 	"time"
 )
 
@@ -55,7 +55,7 @@ func (a AccountManager) CreateOrUpdatePosition(instrument string) domain.Positio
 		a.Positions.CreateOrUpdate(DB, &position)
 		return position
 	} else {
-		log.Print("[Warning] Failed to update Position. Let Check and Fix it :", err)
+		logger.LogManager().Warning("Failed to update Position. Let Check and Fix it :", err)
 		return domain.Positions{}
 	}
 }

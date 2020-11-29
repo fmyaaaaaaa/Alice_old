@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/strings"
-	"log"
 	"net/http"
 )
 
@@ -27,16 +27,16 @@ func (a AccountsApi) GetAccountSummary(ctx context.Context, cancel context.Cance
 	strPath := fmt.Sprintf("/v3/accounts/%s/summary", config.GetInstance().Api.AccountId)
 	req, err := a.newRequest(ctx, "GET", strPath, nil)
 	if err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	res, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 		return &msg.AccountSummaryResponse{}, err
 	}
 	var accountSummary msg.AccountSummaryResponse
 	if err := a.decodeBody(res, &accountSummary); err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	return &accountSummary, nil
 }

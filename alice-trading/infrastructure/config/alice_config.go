@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"sync"
 )
 
@@ -66,7 +67,8 @@ func InitInstance(appMode string, confParams []string) bool {
 			res = initSystemProperty(instance)
 			res = initDevelopOrStagingOrProduction(instance, confParams)
 		default:
-			panic("something wrong happened : appMode")
+			logger.LogManager().Error("Something went wrong at AppMode")
+			panic("Something went wrong at AppMode")
 		}
 	})
 	return res
