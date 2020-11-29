@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/strings"
-	"log"
 	"net/http"
 )
 
@@ -29,15 +29,15 @@ func (p PricesApi) GetPrices(ctx context.Context, instrument string) *msg.Prices
 	params.Add("instruments", instrument)
 	req.URL.RawQuery = params.Encode()
 	if err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	res, err := p.HTTPClient.Do(req)
 	if err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	var price msg.PricesResponse
 	if err := p.decodeBody(res, &price); err != nil {
-		log.Println(err)
+		logger.LogManager().Error(err)
 	}
 	return &price
 }

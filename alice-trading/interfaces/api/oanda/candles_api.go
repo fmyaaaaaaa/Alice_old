@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/strings"
 	"net/http"
@@ -28,16 +29,19 @@ func (c CandlesApi) GetCandleMid(ctx context.Context, instrumentName string, cou
 	strPath := fmt.Sprintf("/v3/instruments/%s/candles", instrumentName)
 	req, err := c.newRequest(ctx, "GET", strPath, nil)
 	if err != nil {
+		logger.LogManager().Error(err)
 		panic(err)
 	}
 	createCandleParam(req, strconv.Itoa(count), enum.M.ToString(), granularity.ToString())
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
+		logger.LogManager().Error(err)
 		panic(err)
 	}
 
 	var candles msg.CandlesMidResponse
 	if err := c.decodeBody(res, &candles); err != nil {
+		logger.LogManager().Error(err)
 		panic(err)
 	}
 	return &candles, nil
@@ -49,16 +53,19 @@ func (c CandlesApi) GetCandleBidAsk(ctx context.Context, instrumentName string, 
 	strPath := fmt.Sprintf("/v3/instruments/%s/candles", instrumentName)
 	req, err := c.newRequest(ctx, "GET", strPath, nil)
 	if err != nil {
+		logger.LogManager().Error(err)
 		panic(err)
 	}
 	createCandleParam(req, strconv.Itoa(count), enum.BA.ToString(), granularity.ToString())
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
+		logger.LogManager().Error(err)
 		panic(err)
 	}
 
 	var candles msg.CandlesBidAskResponse
 	if err := c.decodeBody(res, &candles); err != nil {
+		logger.LogManager().Error(err)
 		panic(err)
 	}
 	return &candles, nil

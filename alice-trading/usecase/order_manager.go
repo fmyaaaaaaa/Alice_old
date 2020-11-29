@@ -5,9 +5,9 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/interfaces/api/msg"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase/util"
-	"log"
 	"strconv"
 )
 
@@ -34,7 +34,7 @@ func (o OrderManager) DoNewMarketOrderTrailingStop(instrument, units, distance s
 	reqParam := msg.NewMarketOrderRequest(instrument, units, "", enum.DefaultOrderPositionFIll, nil, nil, trailing)
 	createRes, errRes := o.OrdersApi.CreateNewOrder(context.Background(), reqParam)
 	if errRes != nil {
-		log.Print("fail to new Order", errRes.ErrorCode, errRes.ErrorMessage)
+		logger.LogManager().Error("Fail to create new Order. " + errRes.ErrorMessage)
 		return nil
 	}
 	// 注文情報を保存する
@@ -65,7 +65,8 @@ func (o OrderManager) DoNewMarketOrderStopLimit(instrument, units, distance stri
 	reqParam := msg.NewMarketOrderRequest(instrument, units, "", enum.DefaultOrderPositionFIll, nil, stopLoss, nil)
 	createRes, errRes := o.OrdersApi.CreateNewOrder(context.Background(), reqParam)
 	if errRes != nil {
-		log.Print("fail to new Order", errRes.ErrorCode, errRes.ErrorMessage)
+		//log.Print("fail to new Order", errRes.ErrorCode, errRes.ErrorMessage)
+		logger.LogManager().Error("Fail to create new Order. " + errRes.ErrorMessage)
 		return nil
 	}
 	o.CreateOrder(o.convertToEntityCreateOrder(createRes, enum.Fok, enum.Market, distance))
@@ -85,7 +86,8 @@ func (o OrderManager) DoChangeOrder(instrument string) bool {
 	reqParam := msg.NewTradeRequest(distance, enum.Gtc)
 	createRes := o.TradesApi.CreateChangeTrade(context.Background(), reqParam, tradeID)
 	if createRes.ErrorCode != "" {
-		log.Print("fail to change Order: ", createRes.ErrorCode, createRes.ErrorMessage)
+		//log.Print("fail to change Order: ", createRes.ErrorCode, createRes.ErrorMessage)
+		logger.LogManager().Error("Fail to change Order. " + createRes.ErrorMessage)
 		return false
 	}
 	return true
@@ -95,7 +97,8 @@ func (o OrderManager) DoChangeOrder(instrument string) bool {
 func (o OrderManager) CreateOrder(order *domain.Orders) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Print("Recovered from ", r)
+			//log.Print("Recovered from ", r)
+			logger.LogManager().Info("Recovered")
 		}
 	}()
 	db := o.DB.Connect()

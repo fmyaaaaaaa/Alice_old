@@ -4,8 +4,8 @@ import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/config"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"github.com/fmyaaaaaaa/Alice/alice-trading/usecase"
-	"log"
 	"strconv"
 	"time"
 )
@@ -34,7 +34,7 @@ func (c CaptainAmerica) JudgementSetup(lastCandle, currentCandle *domain.BidAskC
 		c.CreateOrUpdateCaptainAmericaStatus(captainAmericaStatus)
 		tradeRuleStatus := domain.NewTradeRuleStatus(enum.CaptainAmerica, instrument, granularity, currentCandle.Candles.Time.Add(12*time.Hour))
 		c.CreateOrUpdateTradeRuleStatus(tradeRuleStatus)
-		log.Println("CaptainAmerica setup happened ", instrument, granularity)
+		logger.LogManager().Info("Setup happened " + instrument)
 	}
 }
 
@@ -54,13 +54,13 @@ func (c CaptainAmerica) JudgementTradePlanOfSwingTrade(tradeRuleStatus domain.Tr
 		if captainAmericaStatus.SetupPrice <= currentCandle.GetCloseMid() && currentCandle.Line == enum.Positive {
 			tradePlan = true
 			units = config.GetInstance().Property.OrderLot
-			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
+			logger.LogManager().Info("Trade happened: ", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
 		}
 	case enum.Negative:
 		if captainAmericaStatus.SetupPrice >= currentCandle.GetCloseMid() && currentCandle.Line == enum.Negative {
 			tradePlan = true
 			units = -config.GetInstance().Property.OrderLot
-			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
+			logger.LogManager().Info("Trade happened: ", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
 		}
 	}
 	// トレード計画の結果に応じて、売買ルールの状態を変更する。
@@ -90,14 +90,14 @@ func (c CaptainAmerica) JudgementTradePlanOfDayTrade(tradeRuleStatus domain.Trad
 		if captainAmericaStatus.SetupPrice <= currentCandle.GetCloseMid() && currentCandle.Line == enum.Positive && additionalCandle.Line == enum.Positive {
 			tradePlan = true
 			units = config.GetInstance().Property.OrderLot
-			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
+			logger.LogManager().Info("Trade happened: ", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
 		}
 	case enum.Negative:
 		// セットアップ時点の価格をトレード検証の30分足データが下回っている かつ 直前の15分足の線種がNegativeであること。
 		if captainAmericaStatus.SetupPrice >= currentCandle.GetCloseMid() && currentCandle.Line == enum.Negative && additionalCandle.Line == enum.Negative {
 			tradePlan = true
 			units = -config.GetInstance().Property.OrderLot
-			log.Println("CaptainAmerica trade happened", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
+			logger.LogManager().Info("Trade happened: ", currentCandle.Candles.Time, instrument, granularity, currentCandle.GetCloseMid())
 		}
 	}
 	// トレード計画の結果に応じて、売買ルールの状態を変更する。

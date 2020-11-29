@@ -2,8 +2,8 @@ package cache
 
 import (
 	"github.com/fmyaaaaaaa/Alice/alice-trading/domain/enum"
+	"github.com/fmyaaaaaaa/Alice/alice-trading/infrastructure/logger"
 	"github.com/patrickmn/go-cache"
-	"log"
 	"sync"
 	"time"
 )
@@ -36,7 +36,8 @@ func (a *AliceCacheManager) Set(key string, target interface{}, d enum.Duration)
 		a.AliceCache.Set(key, target, cache.NoExpiration)
 		break
 	default:
-		panic("something wrong duration")
+		logger.LogManager().Error("Something went wrong")
+		panic("Something went wrong")
 	}
 }
 
@@ -44,7 +45,8 @@ func (a *AliceCacheManager) Set(key string, target interface{}, d enum.Duration)
 func (a *AliceCacheManager) Get(key string) interface{} {
 	target, ok := a.AliceCache.Get(key)
 	if !ok {
-		log.Print("no cache for", key)
+		//log.Print("no cache for", key)
+		logger.LogManager().Warning("No cache for " + key)
 	}
 	return target
 }
