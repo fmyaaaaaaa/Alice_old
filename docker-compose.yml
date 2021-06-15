@@ -11,9 +11,9 @@ services:
     hostname: postgres
     environment:
       TZ: "Asia/Tokyo"
-      POSTGRES_USER: alice
-      POSTGRES_PASSWORD: alice
-      POSTGRES_DB: alice_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - 5431:5432
     networks:
@@ -28,8 +28,8 @@ services:
     hostname: test-postgres
     environment:
       TZ: "Asia/Tokyo"
-      POSTGRES_USER: alice
-      POSTGRES_PASSWORD: alice
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
       POSTGRES_DB: test_db
     ports:
       - 5432:5432
